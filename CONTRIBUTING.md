@@ -24,7 +24,7 @@ The repo hosted at [ar-in0/railways-simulator-IITB](https://github.com/ar-in0/ra
 
 ```bash
 # to add a feature/code to the upstream repo
-# always do:
+# before exploring the codebase, ALWAYS do:
 git fetch upstream # fetch latest commits from upstream
 git checkout -b <feature_xx_desc> upstream/main # new feature branch from latest upstream/main
 
