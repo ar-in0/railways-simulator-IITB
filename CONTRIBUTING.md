@@ -13,41 +13,29 @@ Anyone with Git, a Github account and an internet connection can modify the code
 1. Fork this repo.  
 2. Clone your fork to local machine via `git clone <forked-repo-url>`  
 3. Set upstream repo via `git remote add upstream https://github.com/ar-in0/railways-simulator-IITB.git`  
-
-To download the latest updates from upstream:
-```bash
-# Navigate to the project root directory
-cd <wherever>
-
-git fetch upstream
-
-# view the latest changes
-# This will give a detached HEAD state. Dont panic - just dont commit any changes to upstream/main
-# From upstream/main you can either create a new branch for a new feature, or return to origin/main
-git checkout upstream/main 
-```
 4. Configure git to push to your fork by default for new branches via `git config remote.pushDefault origin`  
 5. **Add a brief summary of your task to the [README](README.md) (one per subgroup), using the [new feature workflow](#adding-a-new-featurebugfix) described below.**
 
 ## Adding a new feature/bugfix
 The repo hosted at [ar-in0/railways-simulator-IITB](https://github.com/ar-in0/railways-simulator-IITB) is called *upstream*. Currently owned by Armaan.
 - As soon as you decide to work on a bugfix/feature, **create a new branch** in your local repo. 
-- Expect an always dirty forked main. Therefore branch from `upstream/main` always and not `origin/main`.
+- Expect an always dirty forked main. Therefore branch from `upstream/main` always and never `origin/main`.
+- All new commits will be made on a feature branch that starts from the latest `upstream/main` commit.
 
 ```bash
-# New branch for new bug/feature, starting from upstream/main
-# ensure you have the latest upstream version
-git fetch upstream
+# to add a feature/code to the upstream repo
+# always do:
+git fetch upstream # fetch latest commits from upstream
+git checkout -b <feature_xx_desc> upstream/main # new feature branch from latest upstream/main
 
-# create and switch to a bugfix branch
-git checkout -b <feature_xx_desc> upstream/main # new branch from upstream/main
-
+# --- #
 # Make your local changes to the codebase
+# --- #
 
-# local git commit
+# Do a local git commit
 # and push to origin i.e. your fork
 git add .
-git commit 
+git commit -m "<commit message>"
 git push
 ```
 
