@@ -1,0 +1,16 @@
+SrNum,dummy,dummy,ServiceType,OriginatingAtTime,OriginatingStn,DestinStn,FastOrSlow,TraversalTime
+dummy-rows,dummy,dummy,dummy,minutes,dummy,dummy,dummy,minutes
+dummy,dummy,dummy,dummy,dummy,dummy,dummy,dummy,dummy
+dummy,dummy,dummy,dummy,dummy,dummy,dummy,dummy,dummy
+1,dummy,dummy,local,480,CCG,BA,Fast,45
+2,dummy,dummy,local,486,CCG,BA,Slow,60
+3,dummy,dummy,local,500,CCG,BA,Slow,60
+4,dummy,dummy,local,520,CCG,BA,Fast,45
+5,dummy,dummy,local,530,CCG,BA,Slow,60
+6,dummy,dummy,local,540,BOR,DR,Fast,30
+7,dummy,dummy,local,560,DR,VR,Slow,70
+8,dummy,dummy,local,600,CCG,VR,Slow,100
+9,dummy,dummy,local,530,VR,CCG,Slow,100
+10,dummy,dummy,local,530,AND,CCG,Slow,80
+11,dummy,dummy,local,530,BOR,BA,Fast,45
+12,dummy,dummy,nonlocal,550,VR,BA,Fast,40
