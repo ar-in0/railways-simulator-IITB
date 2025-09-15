@@ -8,7 +8,7 @@ There are three subgroups working on independent tasks. Each task has its own di
 Graphical interface. This directory will implement all the functionality
 contained in b,c,d.
 
-### b. Rake Cycle Visualization
+### b. Rake Cycles Visualization
 
 ### c. Entropy Calculation
 
