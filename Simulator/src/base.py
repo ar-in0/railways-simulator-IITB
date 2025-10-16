@@ -287,6 +287,120 @@ def link_from_bottom(od_pairs_new):
 
 
 # ---------------------------------------------------------------------
+# Helper Functions for Region Selection and Rake Cycles
+# ---------------------------------------------------------------------
+def point_in_rectangle(x, y, x_range, y_range):
+    """Check if a point is within the rectangular selection"""
+    return (x_range[0] <= x <= x_range[1] and 
+            y_range[0] <= y <= y_range[1])
+
+def line_intersects_rectangle(x1, y1, x2, y2, x_range, y_range):
+    """Check if a line segment intersects with or is contained within the rectangle"""
+    # First check if either endpoint is in the rectangle
+    if (point_in_rectangle(x1, y1, x_range, y_range) or 
+        point_in_rectangle(x2, y2, x_range, y_range)):
+        return True
+    
+    # Check if the line passes through the rectangle
+    # This is a simplified check - we'll use bounding box intersection
+    line_x_min, line_x_max = min(x1, x2), max(x1, x2)
+    line_y_min, line_y_max = min(y1, y2), max(y1, y2)
+    
+    # Check if line's bounding box intersects with selection rectangle
+    return not (line_x_max < x_range[0] or line_x_min > x_range[1] or 
+                line_y_max < y_range[0] or line_y_min > y_range[1])
+
+def get_rake_cycle_services(od_pairs, sr_num):
+    """Get all services in the same rake cycle as the given service"""
+    # Create a mapping of sr_num to od_pair
+    od_map = {od.sr_num: od for od in od_pairs}
+    
+    if sr_num not in od_map:
+        return []
+    
+    start_od = od_map[sr_num]
+    cycle_services = [sr_num]
+    
+    # Follow links backward
+    current = start_od
+    while current.linkedToBefore is not None:
+        prev_sr_num = current.linkedToBefore
+        if prev_sr_num in od_map:
+            cycle_services.insert(0, prev_sr_num)
+            current = od_map[prev_sr_num]
+        else:
+            break
+    
+    # Follow links forward
+    current = start_od
+    while current.linkedToAfter is not None:
+        next_sr_num = current.linkedToAfter
+        if next_sr_num in od_map:
+            cycle_services.append(next_sr_num)
+            current = od_map[next_sr_num]
+        else:
+            break
+    
+    return cycle_services
+
+def analyze_selected_services(od_pairs, selected_region):
+    """Analyze services within the selected region - fixed to count unique services only"""
+    if not selected_region or not od_pairs:
+        return {}
+    
+    x_range = selected_region.get('x_range', [])
+    y_range = selected_region.get('y_range', [])
+    
+    if not x_range or not y_range:
+        return {}
+    
+    station_positions = {stn: idx for idx, stn in enumerate(STATION_ORDER)}
+    unique_services = set()  # Use set to track unique sr_nums
+    
+    for od in od_pairs:
+        origin_y = station_positions.get(od.originating_stn, 0)
+        dest_y = station_positions.get(od.destin_stn, 0)
+        
+        # Check if this service line intersects with the selected rectangle
+        if line_intersects_rectangle(od.originating_at_time, origin_y, 
+                                   od.destination_time, dest_y, 
+                                   x_range, y_range):
+            unique_services.add(od.sr_num)
+    
+    # Get the actual ODPair objects for the unique services
+    selected_services = [od for od in od_pairs if od.sr_num in unique_services]
+    
+    # Calculate statistics
+    total_services = len(selected_services)
+    ac_services = sum(1 for od in selected_services if od.is_ac)
+    non_ac_services = total_services - ac_services
+    fast_services = sum(1 for od in selected_services if od.fast_or_slow.lower() == 'fast')
+    slow_services = total_services - fast_services
+    local_services = sum(1 for od in selected_services if od.service_type.lower() == 'local')
+    nonlocal_services = total_services - local_services
+    
+    # Station-wise analysis
+    origin_stations = {}
+    dest_stations = {}
+    for od in selected_services:
+        origin_stations[od.originating_stn] = origin_stations.get(od.originating_stn, 0) + 1
+        dest_stations[od.destin_stn] = dest_stations.get(od.destin_stn, 0) + 1
+    
+    return {
+        'total_services': total_services,
+        'ac_services': ac_services,
+        'non_ac_services': non_ac_services,
+        'fast_services': fast_services,
+        'slow_services': slow_services,
+        'local_services': local_services,
+        'nonlocal_services': nonlocal_services,
+        'origin_stations': origin_stations,
+        'dest_stations': dest_stations,
+        'services': selected_services
+    }
+
+
+# ---------------------------------------------------------------------
 # Railway Visualizer
 # ---------------------------------------------------------------------
 class RailwayVisualizer:
@@ -320,7 +434,7 @@ class RailwayVisualizer:
             
         return x_points, y_points
 
-    def make_figure(self, selected_services=None):
+    def make_figure(self, selected_services=None, selected_region=None):
         selected_services = selected_services or []
         fig = go.Figure()
 
@@ -333,12 +447,6 @@ class RailwayVisualizer:
             dest_y = self.station_positions.get(od.destin_stn, 0)
 
             # color & style
-            # if od.service_type.lower() == "nonlocal":
-            #     color = self.colors["NONLOCAL"]
-            #     line_style = "solid"
-            #     line_width = 2
-            #     marker_symbol = "circle"
-            # else:
             color = self.colors["AC"] if od.is_ac else self.colors["NONAC"]
             line_style = "solid" if str(od.fast_or_slow).strip().lower() == "fast" else "dash"
             line_width = 3 if od.is_ac else 2
@@ -405,9 +513,21 @@ class RailwayVisualizer:
                     meta=service_id
                 ))
 
-        # layout
+        # Add selection rectangle if it exists
+        if selected_region and selected_region.get('x_range') and selected_region.get('y_range'):
+            x_range = selected_region['x_range']
+            y_range = selected_region['y_range']
+            
+            fig.add_shape(
+                type="rect",
+                x0=x_range[0], y0=y_range[0],
+                x1=x_range[1], y1=y_range[1],
+                line=dict(color="rgba(255, 0, 0, 0.8)", width=2, dash="dash"),
+                fillcolor="rgba(255, 0, 0, 0.1)"
+            )
+
+        # layout with selection capabilities
         fig.update_layout(
-            title="Railway Timetable Visualization",
             xaxis_title="Time (Minutes from Midnight)",
             yaxis=dict(
                 tickmode="array",
@@ -415,6 +535,8 @@ class RailwayVisualizer:
                 ticktext=list(self.station_positions.keys())
             ),
             clickmode="event+select",
+            dragmode="select",  # Enable box/lasso select
+            selectdirection="any",  # Allow any direction selection
             hovermode="closest",
             height=600,
             margin=dict(l=50, r=50, t=60, b=50),
@@ -503,12 +625,19 @@ linked_data = link_from_bottom(augmented_data)
 visualizer = RailwayVisualizer(linked_data)
 
 app.layout = html.Div([
-    html.H3("Railway Timetable Visualizer", style={
+    html.H3("Rake Cycle Visualizer", style={
         "textAlign": "center", "marginBottom": "20px", "fontFamily": "Arial, sans-serif", "fontWeight": "bold"
     }),
+    
+    # # Instructions for region selection
+    # html.Div([
+    #     html.P("Instructions: Click and drag to select a rectangular region on the graph to analyze services in that area.", 
+    #            style={"textAlign": "center", "margin": "10px 0", "color": "#666", "fontStyle": "italic"})
+    # ]),
+    
     # compact legend
     html.Div([
-        html.H4("Legend"),
+        # html.H4("Legend"),
         html.Div([
             # AC
             html.Div([
@@ -554,53 +683,99 @@ app.layout = html.Div([
 
     # upload
     html.Div([
-        html.Label("Upload CSV Timetable:", style={"fontWeight": "bold"}),
-        dcc.Upload(id="upload-data", children=html.Div(["Drag and Drop or ", html.A("Select Files")]),
+        # html.Label("Upload CSV Timetable:", style={"fontWeight": "bold"}),
+        dcc.Upload(id="upload-data", children=html.Div(["Upload CSV Timetable "]),
                    style={"width":"100%","height":"60px","lineHeight":"60px","borderWidth":"1px","borderStyle":"dashed","borderRadius":"5px","textAlign":"center","margin":"10px 0"},
                    multiple=False)
     ], style={"padding": "0 20px", "marginBottom": "20px"}),
 
+    # Rake cycle toggle
+    html.Div([
+        dcc.Checklist(
+            id="rake-cycle-toggle",
+            options=[{"label": " Select entire rake cycles", "value": "enabled"}],
+            value=[],
+            style={"display": "inline-block"}
+        )
+    ], style={"textAlign": "center", "marginBottom": "10px"}),
+
     # controls
-        html.Div([
-    html.Button("Make AC", id="make-ac-btn", n_clicks=0, 
-                style={
-                    "padding": "8px 16px",
-                    "cursor": "pointer",
-                    "background-color": "#5DADE2",  # Lighter blue
-                    "color": "white",                # White text
-                    "border": "none"                 # No border
-                }),
-    html.Button("Make Non-AC", id="make-nonac-btn", n_clicks=0, 
-                style={
-                    "padding": "8px 16px",
-                    "cursor": "pointer",
-                    "background-color": "#EC7063",  # Lighter red
-                    "color": "white",                # White text
-                    "border": "none"                 # No border
-                }),
-    html.Button("Clear Selection", id="clear-selection-btn", n_clicks=0, 
-                style={
-                    "padding": "8px 16px",
-                    "cursor": "pointer",
-                    "background-color": "#e7e7e7",   # Default light gray
-                    "border": "none"                 # No border
-                })
-        ], style={
-            "display":"flex",
-            "justifyContent":"center",
-            "gap":"10px",        # space between buttons
-            "marginBottom":"12px",
-            # "border":"1px solid #ccc",  # optional: visually group
-            "padding":"8px",
-            "borderRadius":"5px",
-            # "backgroundColor":"#f9f9f9"
-        }),
+    html.Div([
+        html.Button("Make AC", id="make-ac-btn", n_clicks=0, 
+                    style={
+                        "padding": "8px 16px",
+                        "cursor": "pointer",
+                        "background-color": "#5DADE2",  # Lighter blue
+                        "color": "white",                # White text
+                        "border": "none"                 # No border
+                    }),
+        html.Button("Make Non-AC", id="make-nonac-btn", n_clicks=0, 
+                    style={
+                        "padding": "8px 16px",
+                        "cursor": "pointer",
+                        "background-color": "#EC7063",  # Lighter red
+                        "color": "white",                # White text
+                        "border": "none"                 # No border
+                    }),
+        html.Button("Clear Selection", id="clear-selection-btn", n_clicks=0, 
+                    style={
+                        "padding": "8px 16px",
+                        "cursor": "pointer",
+                        "background-color": "#e7e7e7",   # Default light gray
+                        "border": "none"                 # No border
+                    }),
+        # html.Button("Clear Region", id="clear-region-btn", n_clicks=0, 
+        #             style={
+        #                 "padding": "8px 16px",
+        #                 "cursor": "pointer",
+        #                 "background-color": "#F39C12",   # Orange
+        #                 "color": "white",
+        #                 "border": "none"
+        #             }),
+        html.Button("View Selected Services", id="view-services-btn", n_clicks=0, 
+                    style={
+                        "padding": "8px 16px",
+                        "cursor": "pointer",
+                        "background-color": "#17a2b8",   # Teal
+                        "color": "white",
+                        "border": "none"
+                    })
+    ], style={
+        "display":"flex",
+        "justifyContent":"center",
+        "gap":"10px",        # space between buttons
+        "marginBottom":"12px",
+        "padding":"8px",
+        "borderRadius":"5px",
+    }),
 
     html.Div(id="selection-count", style={"textAlign": "center","fontWeight":"bold","margin":"10px"}),
+    
+    # Region Analysis Summary
+    html.Div(id="region-analysis", style={
+        "textAlign": "center", 
+        "margin": "20px", 
+        "padding": "15px", 
+        "backgroundColor": "#f8f9fa", 
+        "borderRadius": "8px",
+        "border": "1px solid #dee2e6"
+    }),
+
+    # Selected Services Details
+    html.Div(id="selected-services-details", style={
+        "margin": "20px", 
+        "padding": "15px", 
+        "backgroundColor": "#fff", 
+        "borderRadius": "8px",
+        "border": "1px solid #dee2e6",
+        "display": "none"  # Initially hidden
+    }),
 
     dcc.Graph(id="timetable-graph"),
     dcc.Store(id="timetable-data", data=[]),
-    dcc.Store(id="selected-services", data=[])
+    dcc.Store(id="selected-services", data=[]),
+    dcc.Store(id="selected-region", data={}),
+    dcc.Store(id="show-services-details", data=False)
 ])
 
 
@@ -611,20 +786,23 @@ app.layout = html.Div([
     Output("timetable-graph", "figure"),
     Input("timetable-data", "data"),
     Input("selected-services", "data"),
+    Input("selected-region", "data"),
 )
-def update_graph(timetable_data, selected_services):
+def update_graph(timetable_data, selected_services, selected_region):
     if not timetable_data:  # nothing loaded yet
         return go.Figure(
             layout=dict(
-                title="Railway Timetable Visualization",
+               # title="Railway Timetable Visualization - Click and drag to select region",
                 xaxis_title="Time (Minutes from Midnight)",
                 yaxis_title="Stations",
                 height=600,
-                margin=dict(l=50, r=50, t=60, b=50)
+                margin=dict(l=50, r=50, t=60, b=50),
+                dragmode="select",
+                selectdirection="any"
             )
         )
     vis = RailwayVisualizer.from_records(timetable_data)
-    return vis.make_figure(selected_services)
+    return vis.make_figure(selected_services, selected_region)
 
 
 @app.callback(
@@ -632,34 +810,315 @@ def update_graph(timetable_data, selected_services):
     Input("timetable-graph", "clickData"),
     Input("clear-selection-btn", "n_clicks"),
     State("selected-services", "data"),
+    State("rake-cycle-toggle", "value"),
+    State("timetable-data", "data"),
     prevent_initial_call=True
 )
-def select_service(click_data, clear_clicks, selected_services):
+def select_service(click_data, clear_clicks, selected_services, rake_cycle_toggle, timetable_data):
     ctx = callback_context
     if not ctx.triggered:
-        return selected_services
+        return selected_services or []
 
-    trigger = ctx.triggered[0]["prop_id"].split(".")[0]
+    prop = ctx.triggered[0]["prop_id"]
 
-    if trigger == "clear-selection-btn":
+    # Clear button pressed
+    if prop.startswith("clear-selection-btn"):
         return []
-    elif trigger == "timetable-graph" and click_data:
-        point = click_data["points"][0]
+
+    # Only handle actual click events (not selections)
+    if prop.endswith("clickData") and click_data:
+        pts = click_data.get("points")
+        if not pts:
+            return selected_services or []
+
+        point = pts[0]
         sid = point.get("meta") or point.get("customdata")
+        # normalize if customdata/meta is list-like
         if isinstance(sid, (list, tuple)):
             sid = sid[0] if sid else None
-        if sid is None:
-            return selected_services
+        if sid is None or not sid.startswith("S"):
+            return selected_services or []
 
-        # sid should be like "S{sr_num}"
-        if sid in selected_services:
-            selected_services.remove(sid)
+        # Extract sr_num from service ID
+        sr_num = int(sid[1:])
+        selected_services = selected_services or []
+
+        # Check if rake cycle mode is enabled
+        if "enabled" in rake_cycle_toggle and timetable_data:
+            # Convert records back to ODPair objects
+            od_pairs = [
+                ODPair(
+                    sr_num=r["sr_num"],
+                    originating_at_time=r["originating_at_time"],
+                    originating_stn=r["originating_stn"],
+                    destin_stn=r["destin_stn"],
+                    fast_or_slow=r["fast_or_slow"],
+                    traversal_time=r["traversal_time"],
+                    destination_time=r["destination_time"],
+                    service_type=r["service_type"],
+                    is_ac=r.get("is_ac", False),
+                    linkedToBefore=r.get("linkedToBefore"),
+                    linkedToAfter=r.get("linkedToAfter")
+                )
+                for r in timetable_data
+            ]
+            
+            # Get all services in the rake cycle
+            cycle_sr_nums = get_rake_cycle_services(od_pairs, sr_num)
+            cycle_services = [f"S{num}" for num in cycle_sr_nums]
+            
+            # Check if any service in the cycle is already selected
+            any_selected = any(s in selected_services for s in cycle_services)
+            
+            if any_selected:
+                # Remove all services in the cycle
+                selected_services = [s for s in selected_services if s not in cycle_services]
+            else:
+                # Add all services in the cycle
+                selected_services.extend(s for s in cycle_services if s not in selected_services)
         else:
-            selected_services.append(sid)
+            # Individual service selection
+            if sid in selected_services:
+                selected_services.remove(sid)
+            else:
+                selected_services.append(sid)
 
-    return selected_services
+        return selected_services
+
+    # Any other trigger -> no change
+    return dash.no_update
 
 
+# @app.callback(
+#     Output("selected-region", "data"),
+#     [Input("timetable-graph", "selectedData"),
+#      Input("clear-region-btn", "n_clicks")],
+#     prevent_initial_call=True
+# )
+# def update_selected_region(selected_data, clear_clicks):
+#     ctx = callback_context
+#     if not ctx.triggered:
+#         return dash.no_update
+
+#     prop = ctx.triggered[0]["prop_id"]
+
+#     if prop.startswith("clear-region-btn"):
+#         return {}  # explicitly clear
+
+#     # Only handle actual selection events
+#     if prop.endswith("selectedData") and selected_data:
+#         rng = selected_data.get("range")
+#         if not rng:
+#             # Some selection modes may send points without a bounding range; ignore those
+#             return dash.no_update
+
+#         x_range = rng.get("x")
+#         y_range = rng.get("y")
+#         if not x_range or not y_range:
+#             return dash.no_update
+
+#         # Normalize ordering (min, max)
+#         if isinstance(x_range, (list, tuple)) and x_range[0] > x_range[-1]:
+#             x_range = [min(x_range), max(x_range)]
+#         if isinstance(y_range, (list, tuple)) and y_range[0] > y_range[-1]:
+#             y_range = [min(y_range), max(y_range)]
+
+#         return {"x_range": x_range, "y_range": y_range}
+
+#     return dash.no_update
+
+
+@app.callback(
+    Output("region-analysis", "children"),
+    Input("selected-region", "data"),
+    Input("timetable-data", "data")
+)
+def update_region_analysis(selected_region, timetable_data):
+    if not selected_region or not timetable_data:
+        # return html.Div("Select a region on the graph to see analysis")
+        return
+    
+    # Convert records back to ODPair objects for analysis
+    od_pairs = [
+        ODPair(
+            sr_num=r["sr_num"],
+            originating_at_time=r["originating_at_time"],
+            originating_stn=r["originating_stn"],
+            destin_stn=r["destin_stn"],
+            fast_or_slow=r["fast_or_slow"],
+            traversal_time=r["traversal_time"],
+            destination_time=r["destination_time"],
+            service_type=r["service_type"],
+            is_ac=r.get("is_ac", False),
+            linkedToBefore=r.get("linkedToBefore"),
+            linkedToAfter=r.get("linkedToAfter")
+        )
+        for r in timetable_data
+    ]
+    
+    analysis = analyze_selected_services(od_pairs, selected_region)
+    
+    if not analysis or analysis['total_services'] == 0:
+        return html.Div("No services found in selected region")
+    
+    # Create summary cards
+    return html.Div([
+        html.H4("Region Analysis Summary", style={"marginBottom": "15px", "color": "#2c3e50"}),
+        
+        # Main stats row
+        html.Div([
+            html.Div([
+                html.H5(f"{analysis['total_services']}", style={"margin": "0", "color": "#2980b9", "fontSize": "24px"}),
+                html.P("Total Services", style={"margin": "0", "fontSize": "12px", "color": "#7f8c8d"})
+            ], style={"textAlign": "center", "padding": "10px", "backgroundColor": "white", "borderRadius": "6px", "minWidth": "80px"}),
+            
+            html.Div([
+                html.H5(f"{analysis['ac_services']}", style={"margin": "0", "color": "#27ae60", "fontSize": "24px"}),
+                html.P("AC Services", style={"margin": "0", "fontSize": "12px", "color": "#7f8c8d"})
+            ], style={"textAlign": "center", "padding": "10px", "backgroundColor": "white", "borderRadius": "6px", "minWidth": "80px"}),
+            
+            html.Div([
+                html.H5(f"{analysis['non_ac_services']}", style={"margin": "0", "color": "#e74c3c", "fontSize": "24px"}),
+                html.P("Non-AC Services", style={"margin": "0", "fontSize": "12px", "color": "#7f8c8d"})
+            ], style={"textAlign": "center", "padding": "10px", "backgroundColor": "white", "borderRadius": "6px", "minWidth": "80px"}),
+            
+            html.Div([
+                html.H5(f"{analysis['fast_services']}", style={"margin": "0", "color": "#8e44ad", "fontSize": "24px"}),
+                html.P("Fast Services", style={"margin": "0", "fontSize": "12px", "color": "#7f8c8d"})
+            ], style={"textAlign": "center", "padding": "10px", "backgroundColor": "white", "borderRadius": "6px", "minWidth": "80px"}),
+            
+            html.Div([
+                html.H5(f"{analysis['slow_services']}", style={"margin": "0", "color": "#f39c12", "fontSize": "24px"}),
+                html.P("Slow Services", style={"margin": "0", "fontSize": "12px", "color": "#7f8c8d"})
+            ], style={"textAlign": "center", "padding": "10px", "backgroundColor": "white", "borderRadius": "6px", "minWidth": "80px"})
+        ], style={"display": "flex", "justifyContent": "center", "gap": "10px", "flexWrap": "wrap", "marginBottom": "15px"}),
+        
+        # Detailed breakdown
+        html.Div([
+            # Origin stations
+            html.Div([
+                html.H6("Origin Stations", style={"margin": "0 0 8px 0", "color": "#34495e"}),
+                html.Div([
+                    html.Span(f"{station}: {count}", 
+                             style={"backgroundColor": "#ecf0f1", "padding": "4px 8px", "borderRadius": "4px", "fontSize": "12px", "margin": "2px"})
+                    for station, count in analysis['origin_stations'].items()
+                ])
+            ], style={"flex": "1", "minWidth": "200px"}),
+            
+            # Destination stations  
+            html.Div([
+                html.H6("Destination Stations", style={"margin": "0 0 8px 0", "color": "#34495e"}),
+                html.Div([
+                    html.Span(f"{station}: {count}", 
+                             style={"backgroundColor": "#ecf0f1", "padding": "4px 8px", "borderRadius": "4px", "fontSize": "12px", "margin": "2px"})
+                    for station, count in analysis['dest_stations'].items()
+                ])
+            ], style={"flex": "1", "minWidth": "200px"})
+        ], style={"display": "flex", "gap": "20px", "flexWrap": "wrap"}),
+        
+        # Service type breakdown
+        html.Div([
+            html.H6("Service Types", style={"margin": "10px 0 8px 0", "color": "#34495e"}),
+            html.Div([
+                html.Span(f"Local: {analysis['local_services']}", 
+                         style={"backgroundColor": "#d5f4e6", "padding": "4px 8px", "borderRadius": "4px", "fontSize": "12px", "margin": "2px"}),
+                html.Span(f"Non-local: {analysis['nonlocal_services']}", 
+                         style={"backgroundColor": "#fdeaa7", "padding": "4px 8px", "borderRadius": "4px", "fontSize": "12px", "margin": "2px"})
+            ])
+        ], style={"textAlign": "center"})
+    ])
+
+
+@app.callback(
+    Output("show-services-details", "data"),
+    Input("view-services-btn", "n_clicks"),
+    State("show-services-details", "data"),
+    prevent_initial_call=True
+)
+def toggle_services_details(n_clicks, current_state):
+    return not current_state
+
+
+@app.callback(
+    [Output("selected-services-details", "children"),
+     Output("selected-services-details", "style")],
+    [Input("selected-services", "data"),
+     Input("show-services-details", "data")],
+    State("timetable-data", "data")
+)
+def update_selected_services_details(selected_services, show_details, timetable_data):
+    if not show_details or not selected_services or not timetable_data:
+        return "", {"margin": "20px", "padding": "15px", "backgroundColor": "#fff", 
+                   "borderRadius": "8px", "border": "1px solid #dee2e6", "display": "none"}
+    
+    # Convert records back to ODPair objects
+    od_pairs = [
+        ODPair(
+            sr_num=r["sr_num"],
+            originating_at_time=r["originating_at_time"],
+            originating_stn=r["originating_stn"],
+            destin_stn=r["destin_stn"],
+            fast_or_slow=r["fast_or_slow"],
+            traversal_time=r["traversal_time"],
+            destination_time=r["destination_time"],
+            service_type=r["service_type"],
+            is_ac=r.get("is_ac", False),
+            linkedToBefore=r.get("linkedToBefore"),
+            linkedToAfter=r.get("linkedToAfter")
+        )
+        for r in timetable_data
+    ]
+    
+    # Get selected ODPair objects
+    selected_sr_nums = [int(s[1:]) for s in selected_services if s.startswith("S")]
+    selected_od_pairs = [od for od in od_pairs if od.sr_num in selected_sr_nums]
+    
+    # Sort by sr_num for consistent display
+    selected_od_pairs.sort(key=lambda x: x.sr_num)
+    
+    # Create table rows
+    table_rows = []
+    for od in selected_od_pairs:
+        table_rows.append(
+            html.Tr([
+                html.Td(f"S{od.sr_num}", style={"padding": "8px", "border": "1px solid #dee2e6"}),
+                html.Td(od.originating_stn, style={"padding": "8px", "border": "1px solid #dee2e6"}),
+                html.Td(od.destin_stn, style={"padding": "8px", "border": "1px solid #dee2e6"}),
+                html.Td(str(od.originating_at_time), style={"padding": "8px", "border": "1px solid #dee2e6"}),
+                html.Td(str(od.destination_time), style={"padding": "8px", "border": "1px solid #dee2e6"}),
+                html.Td(od.fast_or_slow, style={"padding": "8px", "border": "1px solid #dee2e6"}),
+                html.Td(od.service_type, style={"padding": "8px", "border": "1px solid #dee2e6"}),
+                html.Td("Yes" if od.is_ac else "No", 
+                       style={"padding": "8px", "border": "1px solid #dee2e6", 
+                             "color": "#27ae60" if od.is_ac else "#e74c3c"})
+            ])
+        )
+    
+    content = html.Div([
+        html.H4("Selected Services Details", style={"marginBottom": "15px", "color": "#2c3e50"}),
+        html.Table([
+            html.Thead([
+                html.Tr([
+                    html.Th("Service", style={"padding": "10px", "border": "1px solid #dee2e6", "backgroundColor": "#f8f9fa"}),
+                    html.Th("From", style={"padding": "10px", "border": "1px solid #dee2e6", "backgroundColor": "#f8f9fa"}),
+                    html.Th("To", style={"padding": "10px", "border": "1px solid #dee2e6", "backgroundColor": "#f8f9fa"}),
+                    html.Th("Dep. Time", style={"padding": "10px", "border": "1px solid #dee2e6", "backgroundColor": "#f8f9fa"}),
+                    html.Th("Arr. Time", style={"padding": "10px", "border": "1px solid #dee2e6", "backgroundColor": "#f8f9fa"}),
+                    html.Th("Speed", style={"padding": "10px", "border": "1px solid #dee2e6", "backgroundColor": "#f8f9fa"}),
+                    html.Th("Type", style={"padding": "10px", "border": "1px solid #dee2e6", "backgroundColor": "#f8f9fa"}),
+                    html.Th("AC", style={"padding": "10px", "border": "1px solid #dee2e6", "backgroundColor": "#f8f9fa"})
+                ])
+            ]),
+            html.Tbody(table_rows)
+        ], style={"width": "100%", "borderCollapse": "collapse"})
+    ])
+    
+    visible_style = {"margin": "20px", "padding": "15px", "backgroundColor": "#fff", 
+                    "borderRadius": "8px", "border": "1px solid #dee2e6", "display": "block"}
+    
+    return content, visible_style
+
+import io
 @app.callback(
     Output("timetable-data", "data"),
     # Input("sample-btn", "n_clicks"),
@@ -691,10 +1150,14 @@ def process_data(upload_contents, upload_filename):
 
 @app.callback(
     Output("selection-count", "children"),
-    Input("selected-services", "data")
+    Input("selected-services", "data"),
+    Input("rake-cycle-toggle", "value")
 )
-def update_selection_count(selected_services):
-    return f"Selected services: {len(selected_services)}"
+def update_selection_count(selected_services, rake_cycle_toggle):
+    count = len(selected_services) if selected_services else 0
+    mode = "services" if "enabled" in rake_cycle_toggle else "services"
+    return f"Selected {mode}: {count}"
+
 
 @app.callback(
     Output("timetable-data", "data", allow_duplicate=True),
@@ -727,4 +1190,4 @@ def flip_ac_status(make_ac_clicks, make_nonac_clicks, selected_services, timetab
 # Run
 # ---------------------------------------------------------------------
 if __name__ == "__main__":
-    app.run(debug=True, port=8051)
+    app.run(debug=True, port=8055)
