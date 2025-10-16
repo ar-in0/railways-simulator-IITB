@@ -1,0 +1,975 @@
+Registering station VIRAR, idx 0
+Registering station Nallasopara, idx 1
+Registering station VASAI ROAD, idx 2
+Registering station Naigaon, idx 3
+Registering station BHAYANDAR, idx 4
+Registering station Mira Road, idx 5
+Registering station Dahisar, idx 6
+Registering station BORIVALI, idx 7
+Registering station Kandivali, idx 8
+Registering station Malad, idx 9
+Registering station Goregaon, idx 10
+Registering station Ram Mandir, idx 11
+Registering station Jogeshwari, idx 12
+Registering station ANDHERI, idx 13
+Registering station Vile Parle, idx 14
+Registering station Santa Cruz, idx 15
+Registering station Khar Road, idx 16
+Registering station BANDRA, idx 17
+Registering station Mahim Jn., idx 18
+Registering station Matunga Road, idx 19
+Registering station DADAR, idx 20
+Registering station Prabhadevi, idx 21
+Registering station Lower Parel, idx 22
+Registering station Mahalakshmi, idx 23
+Registering station M'BAI CENTRAL(L), idx 24
+Registering station Grant Road, idx 25
+Registering station Charni Road, idx 26
+Registering station Marine Lines, idx 27
+Registering station CHURCHGATE, idx 28
+Init station for [19038]: VIRAR
+Init station for [20942]: VIRAR
+Init station for [11049, 11089, 11091, 22185, 11087, 20475]: VIRAR
+Init station for [98802]: BORIVALI
+Init station for [90002]: ANDHERI
+Init station for [90004]: BORIVALI
+Init station for [22946]: VIRAR
+Init station for [90006]: VIRAR
+Init station for [90008]: BORIVALI
+Init station for [90010]: BORIVALI
+Init station for [22914]: VIRAR
+Init station for [22972]: VIRAR
+Init station for [90012]: Nallasopara
+repeat stations
+adad column, skip
+Init station for [12297]: VIRAR
+Init station for [22904]: VIRAR
+Init station for [98804]: BORIVALI
+Init station for [90014]: BORIVALI
+Init station for [90016]: BORIVALI
+Init station for [90018]: VIRAR
+Init station for [90020]: BHAYANDAR
+Init station for [98806]: BORIVALI
+Init station for [90022]: BORIVALI
+Init station for [94002]: Nallasopara
+Init station for [94004]: BORIVALI
+Init station for [12978, 12940]: VIRAR
+Init station for [90028]: VIRAR
+Init station for [90030]: BORIVALI
+Init station for [90032]: BORIVALI
+repeat stations
+adad column, skip
+Init station for [92002]: VIRAR
+Init station for [19004]: VIRAR
+Init station for [90034]: BHAYANDAR
+Init station for [22928]: VIRAR
+Init station for [19218]: VIRAR
+Init station for [90036]: BORIVALI
+Init station for [90038]: VIRAR
+Init station for [98704]: Goregaon
+Init station for [90040]: BORIVALI
+Init station for [90042]: BHAYANDAR
+Init station for [90044]: Goregaon
+Init station for [98706]: Goregaon
+Init station for [12928]: VIRAR
+Init station for [90046]: Nallasopara
+Init station for [22944]: VIRAR
+repeat stations
+adad column, skip
+Init station for [90048]: BORIVALI
+Init station for [90050]: BHAYANDAR
+Init station for [90052]: ANDHERI
+Init station for [90054]: VIRAR
+Init station for [90056]: BORIVALI
+Init station for [98708]: Goregaon
+Init station for [94006]: Nallasopara
+Init station for [92004]: VIRAR
+Init station for [90058]: BHAYANDAR
+Init station for [14701]: VIRAR
+Init station for [90060]: BORIVALI
+Init station for [12902]: VIRAR
+Init station for [92006]: Nallasopara
+Init station for [98808]: BANDRA
+Init station for [22934]: VIRAR
+repeat stations
+adad column, skip
+Init station for [90062]: BHAYANDAR
+Init station for [92008]: VIRAR
+Init station for []: Mahalakshmi
+Init station for [90064]: BORIVALI
+Init station for [90066]: BORIVALI
+Init station for [90068]: Goregaon
+Init station for [90070]: VIRAR
+Init station for [12962]: VIRAR
+Init station for [98710]: Goregaon
+Init station for [90072]: BHAYANDAR
+Init station for [90074]: VIRAR
+Init station for [90076]: BORIVALI
+Init station for [90078]: BORIVALI
+Init station for [92010]: VASAI ROAD
+Init station for [92012]: VIRAR
+repeat stations
+adad column, skip
+Init station for [98712]: Goregaon
+Init station for [90080]: BORIVALI
+Init station for [90082]: BORIVALI
+Init station for [90084]: VIRAR
+Init station for [90086]: ANDHERI
+Init station for [98810]: BANDRA
+Init station for [12956]: VIRAR
+Init station for [90088]: Goregaon
+Init station for [92014]: VIRAR
+Init station for [90090]: BORIVALI
+Init station for [90098]: VIRAR
+Init station for [90100]: BORIVALI
+Init station for [90102]: VASAI ROAD
+Init station for [93002]: VIRAR
+Init station for [90104]: BORIVALI
+repeat stations
+adad column, skip
+Init station for [98714]: Goregaon
+Init station for [90106]: VIRAR
+Init station for [90108]: BHAYANDAR
+Init station for [98812]: BANDRA
+Init station for [90110]: BORIVALI
+Init station for [90112]: BORIVALI
+Init station for [92016]: VIRAR
+Init station for [12218, 12484, 22660]: VIRAR
+Init station for [94008]: VIRAR
+Init station for [94010]: BORIVALI
+Init station for [90116]: BORIVALI
+Init station for [14707]: VIRAR
+Init station for [92018]: VIRAR
+Init station for [22964]: VIRAR
+Init station for [90120]: VIRAR
+repeat stations
+adad column, skip
+Init station for [90122]: VIRAR
+Init station for [90124]: BORIVALI
+Init station for [90126]: BORIVALI
+Init station for [98716]: Goregaon
+Init station for [90128]: BORIVALI
+Init station for [69174]: VIRAR
+Init station for [90130]: VIRAR
+Init station for [90132]: Goregaon
+Init station for [94012]: BORIVALI
+Init station for [92020]: VIRAR
+Init station for [22452, 12215, 20944]: VIRAR
+Init station for [98814]: BANDRA
+Init station for [90138]: Goregaon
+Init station for [90140]: BORIVALI
+Init station for [92022]: Nallasopara
+repeat stations
+adad column, skip
+Init station for [90142]: BORIVALI
+Init station for [98718]: Goregaon
+Init station for [90144]: BORIVALI
+Init station for [92024]: VIRAR
+Init station for [90146]: VASAI ROAD
+Init station for [90148]: BORIVALI
+Init station for [90150]: VIRAR
+Init station for [69164]: VIRAR
+Init station for [90152]: VIRAR
+Init station for [12268]: VIRAR
+Init station for [98902]: Goregaon
+Init station for [90154]: BORIVALI
+Init station for [90156]: BORIVALI
+Init station for [90158]: VIRAR
+Init station for [98816]: BANDRA
+repeat stations
+adad column, skip
+Init station for [90160]: Goregaon
+Init station for [90162]: BORIVALI
+Init station for [90164]: VIRAR
+Init station for [12972]: VIRAR
+Init station for [93004]: VIRAR
+Init station for [90166]: BORIVALI
+Init station for [90168]: BORIVALI
+Init station for [92026]: VIRAR
+Init station for [98720]: Goregaon
+Init station for [90170]: BANDRA
+Init station for [90172]: BORIVALI
+Init station for [90174]: VASAI ROAD
+Init station for [90176]: ANDHERI
+Init station for [90178]: BORIVALI
+Init station for [90180]: Goregaon
+repeat stations
+adad column, skip
+Init station for [90182]: VIRAR
+Init station for [94014]: BORIVALI
+Init station for [92028]: VIRAR
+Init station for [94016]: VIRAR
+Init station for [19092]: VIRAR
+Init station for [12228, 12240]: VIRAR
+Init station for [92030]: VIRAR
+Init station for [92032]: VIRAR
+Init station for [90186]: BHAYANDAR
+Init station for [98818]: BANDRA
+Init station for [90188]: Goregaon
+Init station for [90190]: VIRAR
+Init station for [12952]: VIRAR
+Init station for [90192]: Malad
+Init station for [90194]: BORIVALI
+repeat stations
+adad column, skip
+Init station for [92034]: VASAI ROAD
+Init station for [90196]: VIRAR
+Init station for [90198]: BORIVALI
+Init station for [98722]: Goregaon
+Init station for [90200]: VIRAR
+Init station for [90202]: ANDHERI
+Init station for [90204]: Goregaon
+Init station for [90206]: VIRAR
+Init station for [90208]: BHAYANDAR
+Init station for [90210]: Goregaon
+Init station for [90212]: BORIVALI
+Init station for [98820]: BANDRA
+Init station for [90214]: BORIVALI
+Init station for [92036]: VIRAR
+Init station for [90216]: VIRAR
+repeat stations
+adad column, skip
+Init station for [92038]: VIRAR
+Init station for [94018]: BORIVALI
+Init station for [92040]: VIRAR
+Init station for [90220]: Malad
+Init station for [90222]: Goregaon
+Init station for [98904]: Goregaon
+Init station for [90224]: ANDHERI
+Init station for [90226]: BORIVALI
+Init station for [94020]: VIRAR
+Init station for [59024]: VIRAR
+Init station for [90230]: BORIVALI
+Init station for [98822]: BANDRA
+Init station for [92042]: VIRAR
+Init station for [90232]: ANDHERI
+Init station for [94022]: BHAYANDAR
+repeat stations
+adad column, skip
+Init station for [98724]: Goregaon
+Init station for [90236]: BORIVALI
+Init station for [90238]: BORIVALI
+Init station for [90240]: BANDRA
+Init station for [90242]: VASAI ROAD
+Init station for [93006]: VIRAR
+Init station for [12248]: VIRAR
+Init station for [12910, 12908]: VIRAR
+Init station for [90244]: VIRAR
+Init station for [90246]: Goregaon
+Init station for [90248]: BORIVALI
+Init station for [98824]: BANDRA
+Init station for [90250]: Goregaon
+Init station for [92044]: VIRAR
+repeat stations
+adad column, skip
+Init station for [22924, 22936, 22990]: VIRAR
+Init station for [90252]: VIRAR
+Init station for [90254]: BORIVALI
+Init station for [90256]: BORIVALI
+Init station for [92046]: VIRAR
+Init station for [92048]: VIRAR
+Init station for [90258]: BORIVALI
+Init station for [98726]: Goregaon
+Init station for [90260]: VIRAR
+Init station for [92050]: BHAYANDAR
+Init station for [90262]: BORIVALI
+Init station for [90264]: Goregaon
+Init station for [93008]: VIRAR
+Init station for [94024]: VIRAR
+Init station for [90266]: VASAI ROAD
+repeat stations
+adad column, skip
+Init station for [90268]: BORIVALI
+Init station for [90270]: VIRAR
+Init station for [12922]: VIRAR
+Init station for [90272]: ANDHERI
+Init station for [98826]: BANDRA
+Init station for [98906]: Goregaon
+Init station for [90274]: BHAYANDAR
+Init station for [90276]: Goregaon
+Init station for [92052]: VIRAR
+Init station for [90278]: BORIVALI
+Init station for [90280]: VIRAR
+Init station for [12954]: VIRAR
+Init station for [90282]: Goregaon
+Init station for [90284]: ANDHERI
+Init station for [90286]: Goregaon
+repeat stations
+adad column, skip
+Init station for [90288]: BORIVALI
+Init station for [90290]: VIRAR
+Init station for [92054]: VASAI ROAD
+Init station for [94026]: BORIVALI
+Init station for [92056]: VIRAR
+Init station for [98728]: Goregaon
+Init station for [90292]: BORIVALI
+Init station for [90294]: VIRAR
+Init station for [90296]: BORIVALI
+Init station for [92058]: VIRAR
+Init station for [94028]: VIRAR
+Init station for [90300]: Goregaon
+Init station for [90302]: Goregaon
+Init station for [90304]: BORIVALI
+Init station for [92060]: BHAYANDAR
+repeat stations
+adad column, skip
+Init station for [98828]: BANDRA
+Init station for [90306]: BORIVALI
+Init station for [90308]: ANDHERI
+Init station for [90310]: VIRAR
+Init station for [92062]: VIRAR
+Init station for [98730]: Goregaon
+Init station for [90312]: BORIVALI
+Init station for [94030]: VIRAR
+Init station for [90316]: BORIVALI
+Init station for [90318]: Goregaon
+Init station for [92064]: VIRAR
+Init station for [61001]: VIRAR
+Init station for [90320]: BORIVALI
+Init station for [90322]: BHAYANDAR
+repeat stations
+adad column, skip
+Init station for [90324]: VIRAR
+Init station for [98830]: BANDRA
+Init station for [90326]: Goregaon
+Init station for [90328]: BORIVALI
+Init station for [92066]: VIRAR
+Init station for [92068]: VIRAR
+Init station for [90330]: ANDHERI
+Init station for [90332]: BORIVALI
+Init station for [90334]: VIRAR
+Init station for [94032]: BORIVALI
+Init station for [90338]: Goregaon
+Init station for [90340]: BORIVALI
+Init station for [90342]: VIRAR
+Init station for [93010]: VIRAR
+Init station for [90344]: BORIVALI
+repeat stations
+adad column, skip
+Init station for [90346]: BHAYANDAR
+Init station for [92070]: VIRAR
+Init station for [90348]: ANDHERI
+Init station for [98732]: Goregaon
+Init station for [90350]: VASAI ROAD
+Init station for [90352]: BORIVALI
+Init station for [20932, 22908, 20910, 19578]: VIRAR
+Init station for [90356]: VIRAR
+Init station for [90358]: BORIVALI
+Init station for [92072]: BHAYANDAR
+Init station for [90360]: VIRAR
+Init station for [19002]: VIRAR
+Init station for [98832]: BANDRA
+Init station for [92074]: VIRAR
+Init station for [90362]: BORIVALI
+repeat stations
+adad column, skip
+Init station for [12960, 12966, 22966]: VIRAR
+Init station for [90364]: VIRAR
+Init station for [90366]: Goregaon
+Init station for [90368]: BORIVALI
+Init station for [98734]: Dahisar
+Init station for [90370]: BORIVALI
+Init station for [92076]: VIRAR
+Init station for [12479]: VIRAR
+Init station for [90372]: Goregaon
+Init station for [90374]: BORIVALI
+Init station for [94034]: VIRAR
+Init station for [90376]: BORIVALI
+Init station for [90378]: ANDHERI
+Init station for [90380]: BORIVALI
+Init station for [22956]: VIRAR
+repeat stations
+adad column, skip
+Init station for [90382]: VIRAR
+Init station for [98834]: BANDRA
+Init station for [90384]: Goregaon
+Init station for [90386]: BORIVALI
+Init station for [90388]: VIRAR
+Init station for [90390]: BORIVALI
+Init station for [92078]: VIRAR
+Init station for [22962]: VIRAR
+Init station for [92080]: VIRAR
+Init station for [90394]: BHAYANDAR
+Init station for [98736]: Goregaon
+Init station for [90396]: ANDHERI
+Init station for [93012]: VIRAR
+Init station for [90398]: BORIVALI
+Init station for [94036]: BORIVALI
+Init station for [91392]: Goregaon
+repeat stations
+adad column, skip
+Init station for [90402]: BORIVALI
+Init station for [92082]: VASAI ROAD
+Init station for [94038]: VIRAR
+Init station for [22952, 22473]: VIRAR
+Init station for [12934]: VIRAR
+Init station for [90404]: BORIVALI
+Init station for [92084]: VIRAR
+Init station for [94040]: BORIVALI
+Init station for [94042]: VIRAR
+Init station for [90408]: BORIVALI
+Init station for [90410]: Goregaon
+Init station for [98836]: BANDRA
+Init station for [90412]: VIRAR
+Init station for [92086]: VIRAR
+Init station for [90414]: BORIVALI
+repeat stations
+adad column, skip
+Init station for [90416]: BORIVALI
+Init station for [98738]: Goregaon
+Init station for [92088]: VIRAR
+Init station for [90418]: Goregaon
+Init station for [90420]: BORIVALI
+Init station for [90422]: VIRAR
+Init station for [98838]: BANDRA
+Init station for [90424]: BORIVALI
+Init station for [92090]: VIRAR
+Init station for [93014]: VIRAR
+Init station for [90426]: BORIVALI
+Init station for [90428]: VIRAR
+Init station for [94044]: BHAYANDAR
+Init station for [98908]: Goregaon
+repeat stations
+adad column, skip
+Init station for [90430]: BORIVALI
+Init station for [92092]: VIRAR
+Init station for [90432]: BORIVALI
+Init station for [98740]: Goregaon
+Init station for [90436]: BORIVALI
+Init station for [92094]: VIRAR
+Init station for [90438]: BORIVALI
+Init station for [92096]: VIRAR
+Init station for [93016]: VIRAR
+Init station for [12489, 12990, 20483]: VIRAR
+Init station for [12932]: VIRAR
+Init station for [90440]: VIRAR
+Init station for [90442]: Goregaon
+Init station for [69168]: VASAI ROAD
+repeat stations
+adad column, skip
+Init station for [90444]: BORIVALI
+Init station for [98840]: BANDRA
+Init station for [82902]: VIRAR
+Init station for [12980]: VIRAR
+Init station for [90446]: BORIVALI
+Init station for [90448]: BHAYANDAR
+Init station for [90450]: VIRAR
+Init station for [90452]: Goregaon
+Init station for [90454]: VIRAR
+Init station for [98742]: Goregaon
+Init station for [92098]: VIRAR
+Init station for [90456]: BORIVALI
+Init station for [92100]: VIRAR
+Init station for [90458]: VIRAR
+Init station for [90460]: BORIVALI
+repeat stations
+adad column, skip
+Init station for [90462]: BORIVALI
+Init station for [22902]: VIRAR
+Init station for [19667, 22194]: VIRAR
+Init station for [94046]: VIRAR
+Init station for [90466]: BORIVALI
+Init station for [98842]: BANDRA
+Init station for [90468]: BHAYANDAR
+Init station for [90470]: VIRAR
+Init station for [90472]: BORIVALI
+Init station for [92102]: VIRAR
+Init station for [93018]: VIRAR
+Init station for [98744]: Goregaon
+Init station for [90474]: Goregaon
+Init station for [90476]: BORIVALI
+Init station for [90478]: VIRAR
+repeat stations
+adad column, skip
+Init station for [90480]: BORIVALI
+Init station for [98844]: BANDRA
+Init station for [90482]: BORIVALI
+Init station for [90484]: VIRAR
+Init station for [90486]: BHAYANDAR
+Init station for [94048]: VIRAR
+Init station for [20908]: VIRAR
+Init station for [90490]: BORIVALI
+Init station for [91394]: Goregaon
+Init station for [90492]: BORIVALI
+Init station for [90494]: BORIVALI
+Init station for [90496]: BORIVALI
+Init station for [90498]: VIRAR
+Init station for [90500]: VASAI ROAD
+Init station for [92104]: VIRAR
+Init station for [12996]: VIRAR
+repeat stations
+adad column, skip
+Init station for [90502]: Goregaon
+Init station for [90504]: BORIVALI
+Init station for [92106]: VIRAR
+Init station for [90506]: BHAYANDAR
+Init station for [98846]: BANDRA
+Init station for [90508]: BORIVALI
+Init station for [92108]: VIRAR
+Init station for [92110]: VIRAR
+Init station for [94050]: VIRAR
+Init station for [90510]: BORIVALI
+Init station for [98746]: Goregaon
+Init station for [94052]: BORIVALI
+Init station for [90512]: VIRAR
+Init station for [90514]: BORIVALI
+repeat stations
+adad column, skip
+Init station for [90516]: BORIVALI
+Init station for [19418]: VIRAR
+Init station for [92112]: VIRAR
+Init station for [90520]: BORIVALI
+Init station for [90522]: VIRAR
+Init station for [90524]: BORIVALI
+Init station for [90526]: VASAI ROAD
+Init station for [98848]: BANDRA
+Init station for [94054]: VIRAR
+Init station for [90532]: BORIVALI
+Init station for [92114]: VIRAR
+Init station for [93020]: VIRAR
+Init station for [12926]: VIRAR
+Init station for [16588, 14806]: VIRAR
+Init station for [19028, 22932]: VIRAR
+repeat stations
+adad column, skip
+Init station for [90534]: Goregaon
+Init station for [90536]: BHAYANDAR
+Init station for [92116]: VIRAR
+Init station for [98748]: Goregaon
+Init station for [92118]: VIRAR
+Init station for [90538]: BORIVALI
+Init station for [93022]: VIRAR
+Init station for [90540]: BORIVALI
+Init station for [22497, 12284, 12494, 16311, 22475]: VIRAR
+Init station for [22950]: VIRAR
+Init station for [94056]: VIRAR
+Init station for [90546]: BORIVALI
+Init station for [94058]: VIRAR
+Init station for [90550]: BORIVALI
+repeat stations
+adad column, skip
+Init station for [92120]: VIRAR
+Init station for [98850]: BANDRA
+Init station for [90552]: BORIVALI
+Init station for [90554]: BORIVALI
+Init station for [98750]: Goregaon
+Init station for [90556]: BORIVALI
+Init station for [90558]: ANDHERI
+Init station for [90560]: VIRAR
+Init station for [90562]: VIRAR
+Init station for [90564]: BORIVALI
+Init station for [93024]: VIRAR
+Init station for [90566]: Goregaon
+Init station for [90568]: VASAI ROAD
+Init station for [92122]: VIRAR
+Init station for [90570]: BORIVALI
+repeat stations
+adad column, skip
+Init station for [90572]: VIRAR
+Init station for [22954]: VIRAR
+Init station for [22210]: VIRAR
+Init station for [90574]: BORIVALI
+Init station for [92124]: VIRAR
+Init station for [98852]: BANDRA
+Init station for [90576]: BORIVALI
+Init station for [90578]: BORIVALI
+Init station for [22916, 19204, 19010, 12998]: VIRAR
+Init station for [92126]: VIRAR
+Init station for [92128]: VIRAR
+Init station for [98752]: Goregaon
+Init station for [90580]: BORIVALI
+Init station for [90582]: BHAYANDAR
+Init station for [92130]: VIRAR
+repeat stations
+adad column, skip
+Init station for [90586]: BORIVALI
+Init station for [22922]: VIRAR
+Init station for [90588]: VIRAR
+Init station for [94060]: VIRAR
+Init station for [90592]: Goregaon
+Init station for [98854]: BANDRA
+Init station for [71006]: VASAI ROAD
+Init station for [22195, 12472]: VIRAR
+Init station for [90594]: BORIVALI
+Init station for [90596]: BORIVALI
+Init station for [92132]: VASAI ROAD
+Init station for [90598]: BORIVALI
+Init station for [94062]: BHAYANDAR
+Init station for [90600]: VIRAR
+Init station for [90602]: BORIVALI
+repeat stations
+adad column, skip
+Init station for [98754]: Goregaon
+Init station for [93026]: VIRAR
+Init station for [92134]: VIRAR
+Init station for [90606]: BORIVALI
+Init station for [90608]: VIRAR
+Init station for [90610]: Goregaon
+Init station for [22634, 19424]: VIRAR
+Init station for [22634, 19424]: VIRAR
+Init station for [90612]: BORIVALI
+Init station for [98856]: BANDRA
+Init station for [94064]: VIRAR
+Init station for [90614]: VIRAR
+Init station for [90616]: BORIVALI
+Init station for [90618]: Goregaon
+Init station for [90620]: BORIVALI
+repeat stations
+adad column, skip
+Init station for [92136]: VIRAR
+Init station for [90622]: BORIVALI
+Init station for [90624]: VIRAR
+Init station for [90626]: BORIVALI
+Init station for [90628]: BHAYANDAR
+Init station for [90630]: VIRAR
+Init station for [94066]: BORIVALI
+Init station for [22918]: VIRAR
+Init station for [20920, 82654, 22634, 20924]: VIRAR
+Init station for [22920, 20954]: VIRAR
+Init station for [90634]: Malad
+Init station for [98756]: Goregaon
+Init station for [90636]: Goregaon
+Init station for [90638]: BORIVALI
+Init station for [92138]: VASAI ROAD
+repeat stations
+adad column, skip
+Init station for [92140]: VIRAR
+Init station for [90640]: BORIVALI
+Init station for [90642]: BORIVALI
+Init station for [90644]: BHAYANDAR
+Init station for [90646]: BORIVALI
+Init station for [92142]: VIRAR
+Init station for [90648]: Nallasopara
+Init station for [98858]: BANDRA
+Init station for [90650]: BORIVALI
+Init station for [90652]: VIRAR
+Init station for []: M'BAI CENTRAL(L)
+Init station for [90654]: Malad
+Init station for [90656]: Goregaon
+Init station for [90658]: VIRAR
+Init station for [90660]: BORIVALI
+repeat stations
+adad column, skip
+Init station for [98758]: Goregaon
+Init station for [90662]: BORIVALI
+Init station for [94068]: VIRAR
+Init station for [90664]: Malad
+Init station for [90666]: BORIVALI
+Init station for [59040]: VIRAR
+Init station for [15067]: VIRAR
+Init station for [98860]: BANDRA
+Init station for [90668]: BHAYANDAR
+Init station for [90670]: BORIVALI
+Init station for [90672]: VASAI ROAD
+Init station for [22717, 16613, 12756, 19568, 20968]: VIRAR
+Init station for [90674]: VIRAR
+Init station for [90676]: BORIVALI
+repeat stations
+adad column, skip
+Init station for [94072]: VIRAR
+Init station for [90680]: Goregaon
+Init station for [90682]: BORIVALI
+Init station for [98760]: Goregaon
+Init station for [92144]: Nallasopara
+Init station for [93028]: VIRAR
+Init station for [90684]: ANDHERI
+Init station for [90686]: BORIVALI
+Init station for [90688]: BHAYANDAR
+Init station for [90690]: Malad
+Init station for [92146]: VIRAR
+Init station for [90692]: BORIVALI
+Init station for [90694]: Goregaon
+Init station for [94074]: VIRAR
+Init station for [94076]: BORIVALI
+repeat stations
+adad column, skip
+Init station for [98862]: BANDRA
+Init station for [90700]: BORIVALI
+Init station for [90702]: BORIVALI
+Init station for [92148]: VIRAR
+Init station for [90704]: Nallasopara
+Init station for [94078]: VIRAR
+Init station for []: VIRAR
+Init station for [90708]: ANDHERI
+Init station for [98762]: Goregaon
+Init station for [90710]: BORIVALI
+Init station for [90714]: BORIVALI
+Init station for [90716]: VIRAR
+Init station for [92150]: VIRAR
+Init station for [90718]: BORIVALI
+Init station for [90720]: BHAYANDAR
+repeat stations
+adad column, skip
+Init station for [90726]: Goregaon
+Init station for [93030]: VIRAR
+Init station for [92152]: VIRAR
+Init station for [90728]: BORIVALI
+Init station for [90730]: VIRAR
+Init station for [90732]: Nallasopara
+Init station for [98864]: BANDRA
+Init station for [90734]: VIRAR
+Init station for [90736]: Goregaon
+Init station for [90738]: BORIVALI
+Init station for [98764]: Goregaon
+Init station for [92154]: VIRAR
+Init station for [90740]: BANDRA
+Init station for [92156]: VIRAR
+Init station for [90742]: BORIVALI
+repeat stations
+adad column, skip
+Init station for [94080]: BORIVALI
+Init station for [90746]: BORIVALI
+Init station for [90748]: VASAI ROAD
+Init station for [90750]: VIRAR
+Init station for [90752]: ANDHERI
+Init station for [90754]: BORIVALI
+Init station for [92158]: VIRAR
+Init station for [98910]: Goregaon
+Init station for [90756]: Goregaon
+Init station for [90758]: BORIVALI
+Init station for [92160]: Nallasopara
+Init station for [90760]: BORIVALI
+Init station for [98866]: BANDRA
+Init station for [90762]: BANDRA
+repeat stations
+adad column, skip
+Init station for [90764]: BORIVALI
+Init station for [90766]: VIRAR
+Init station for [92162]: VIRAR
+Init station for [90768]: Malad
+Init station for [98766]: Goregaon
+Init station for [90770]: BORIVALI
+Init station for [90772]: Goregaon
+Init station for [90774]: BORIVALI
+Init station for [92164]: VIRAR
+Init station for [92166]: VIRAR
+Init station for [19016]: VIRAR
+Init station for [90776]: BORIVALI
+Init station for [92168]: VIRAR
+Init station for [90778]: BORIVALI
+Init station for [90780]: VIRAR
+Init station for [94082]: BORIVALI
+repeat stations
+adad column, skip
+Init station for [98868]: BANDRA
+Init station for [98912]: Goregaon
+Init station for [90782]: BORIVALI
+Init station for [92170]: VASAI ROAD
+Init station for [94084]: VIRAR
+Init station for [93032]: VIRAR
+Init station for [90786]: Goregaon
+Init station for [90788]: BORIVALI
+Init station for [98768]: Goregaon
+Init station for [90790]: BORIVALI
+Init station for [90792]: VIRAR
+Init station for [90794]: BANDRA
+Init station for [90796]: BORIVALI
+Init station for [94086]: VIRAR
+repeat stations
+adad column, skip
+Init station for [94088]: VIRAR
+Init station for [90802]: BORIVALI
+Init station for [90804]: Goregaon
+Init station for [98770]: Goregaon
+Init station for [90806]: BORIVALI
+Init station for [90808]: BORIVALI
+Init station for [90810]: BORIVALI
+Init station for [92172]: VIRAR
+Init station for [90812]: VIRAR
+Init station for [90814]: BORIVALI
+Init station for [92174]: VIRAR
+Init station for [98870]: BANDRA
+Init station for [90816]: ANDHERI
+Init station for [98914]: Goregaon
+Init station for [90818]: BORIVALI
+repeat stations
+adad column, skip
+Init station for [90820]: BORIVALI
+Init station for [91396]: Goregaon
+Init station for [91396]: Goregaon
+Init station for [90822]: BORIVALI
+Init station for [90826]: BORIVALI
+Init station for [93034]: VIRAR
+Init station for [61009]: VASAI ROAD
+Init station for [94090]: BHAYANDAR
+Init station for [92176]: VIRAR
+Init station for [90828]: ANDHERI
+Init station for [90830]: BORIVALI
+Init station for [90832]: VIRAR
+Init station for [98772]: Goregaon
+Init station for [90834]: Goregaon
+Init station for [90836]: BORIVALI
+repeat stations
+adad column, skip
+Init station for [90838]: BORIVALI
+Init station for [90840]: VIRAR
+Init station for [90842]: BORIVALI
+Init station for [92178]: VASAI ROAD
+Init station for [98872]: BANDRA
+Init station for [20902]: VIRAR
+Init station for [90844]: VIRAR
+Init station for [90846]: BORIVALI
+Init station for [98916]: Goregaon
+Init station for [90848]: BORIVALI
+Init station for [90850]: Goregaon
+Init station for [90852]: VIRAR
+Init station for [92180]: VIRAR
+Init station for [12936]: VIRAR
+Init station for [92182]: VIRAR
+repeat stations
+adad column, skip
+Init station for [90856]: BORIVALI
+Init station for [98774]: Goregaon
+Init station for [59046]: VIRAR
+Init station for [90858]: VIRAR
+Init station for [20922, 22443, 22976]: VIRAR
+Init station for [90860]: BORIVALI
+Init station for [90862]: VIRAR
+Init station for [90864]: Goregaon
+Init station for [90866]: BORIVALI
+Init station for [90868]: VIRAR
+Init station for [90870]: BORIVALI
+Init station for [98874]: BANDRA
+Init station for [94092]: VIRAR
+Init station for [90872]: VIRAR
+repeat stations
+adad column, skip
+Init station for [90874]: BORIVALI
+Init station for [92184]: VIRAR
+Init station for [90878]: BORIVALI
+Init station for [90880]: Goregaon
+Init station for [90882]: BANDRA
+Init station for [98776]: Goregaon
+Init station for [90884]: BHAYANDAR
+Init station for [90886]: BORIVALI
+Init station for [94094]: VIRAR
+Init station for [93036]: VIRAR
+Init station for [94096]: BHAYANDAR
+Init station for [90892]: VIRAR
+Init station for [90894]: Goregaon
+Init station for [90896]: BORIVALI
+repeat stations
+adad column, skip
+Init station for [98876]: BANDRA
+Init station for [90898]: BORIVALI
+Init station for [90900]: BORIVALI
+Init station for [90902]: Goregaon
+Init station for [92186]: VIRAR
+Init station for [92188]: VIRAR
+Init station for [12010]: VIRAR
+Init station for [90904]: BORIVALI
+Init station for [94098]: VIRAR
+Init station for [98778]: Goregaon
+Init station for [90908]: BORIVALI
+Init station for [90910]: VIRAR
+Init station for [90912]: BORIVALI
+Init station for [90916]: BORIVALI
+Init station for [98918]: Goregaon
+repeat stations
+adad column, skip
+Init station for [90918]: Goregaon
+Init station for [92190]: VIRAR
+Init station for [98878]: BANDRA
+Init station for [90922]: BORIVALI
+Init station for [90924]: VIRAR
+Init station for [93038]: VIRAR
+Init station for [94108]: BHAYANDAR
+Init station for [90926]: BORIVALI
+Init station for [90928]: BORIVALI
+Init station for [98780]: Goregaon
+Init station for [90930]: BORIVALI
+Init station for [90932]: BORIVALI
+Init station for [90934]: VIRAR
+Init station for [92192]: VIRAR
+Init station for [90936]: BORIVALI
+repeat stations
+adad column, skip
+Init station for [92194]: VASAI ROAD
+Init station for [98880]: BANDRA
+Init station for [90938]: VIRAR
+Init station for [94100]: VIRAR
+Init station for [92196]: VIRAR
+Init station for [90940]: BORIVALI
+Init station for [16507, 16533, 16209, 16505, 16531]: VIRAR
+Init station for [90942]: BORIVALI
+Init station for [90944]: VIRAR
+Init station for [90946]: Goregaon
+Init station for [90948]: BORIVALI
+Init station for [98782]: Goregaon
+Init station for [14807]: VIRAR
+Init station for [98882]: BANDRA
+repeat stations
+adad column, skip
+Init station for [94102]: VIRAR
+Init station for [90950]: VIRAR
+Init station for [19020]: VIRAR
+Init station for [90952]: BORIVALI
+Init station for [92198]: VIRAR
+Init station for [90954]: VIRAR
+Init station for [90956]: BORIVALI
+Init station for [90958]: BORIVALI
+Init station for [12432, 22414, 12264]: VIRAR
+Init station for [92200]: VIRAR
+Init station for [90960]: VIRAR
+Init station for [10116]: VASAI ROAD
+Init station for [90962]: VIRAR
+Init station for [90964]: BORIVALI
+Init station for [90966]: VIRAR
+repeat stations
+adad column, skip
+Init station for [69196]: VIRAR
+Init station for [93040]: VIRAR
+Init station for [98784]: Goregaon
+Init station for [90968]: VIRAR
+Init station for [90970]: VIRAR
+Init station for [90972]: BORIVALI
+Init station for [98884]: BANDRA
+Init station for [90974]: BORIVALI
+Init station for [90976]: VIRAR
+Init station for [90978]: BORIVALI
+Init station for [98786]: Goregaon
+Init station for [92202]: VIRAR
+Init station for [90980]: BORIVALI
+Init station for [90982]: BORIVALI
+Init station for [90984]: VIRAR
+repeat stations
+adad column, skip
+Init station for [16333, 16335, 16337, 19260]: VIRAR
+Init station for [92204]: VIRAR
+Init station for [98886]: BANDRA
+Init station for [94104]: BHAYANDAR
+Init station for [90990]: BORIVALI
+Init station for [12904]: VIRAR
+Init station for [90992]: VIRAR
+Init station for [94106]: VIRAR
+Init station for [22654, 22656, 20916]: VIRAR
+Init station for [90996]: BORIVALI
+Init station for [90998]: BORIVALI
+Init station for [92206]: VIRAR
+Init station for [12450]: VIRAR
+Init station for [91000]: VIRAR
+Init station for []: BANDRA
+repeat stations
+adad column, skip
+Init station for [98788]: Goregaon
+Init station for [91002]: VIRAR
+Init station for [91004]: BORIVALI
+Init station for [92208]: BHAYANDAR
+Init station for [91006]: VIRAR
+Init station for [91008]: BORIVALI
+Init station for [91010]: VIRAR
+Init station for [69144]: VIRAR
+Init station for [19426]: VIRAR
+Init station for [91012]: VIRAR
+Init station for [69140]: VIRAR
+Init station for [98702]: Goregaon
+Init station for [91014]: BORIVALI
+Init station for [91016]: VIRAR
+repeat stations
+adad column, skip
+Init station for []: BANDRA
+Init station for [91018]: VIRAR
+Init station for [91020]: BORIVALI
+Init station for [93042]: VIRAR
+Init station for [91022]: VIRAR
+Init station for [91024]: VIRAR
