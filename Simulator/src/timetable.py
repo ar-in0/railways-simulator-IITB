@@ -18,9 +18,20 @@ class TimeTable:
         self.stations = {} # stationName: <Station>
 
         self.upServices = []
-        self.dowServices = []
+        self.downServices = []
+        
+        self.stationEvents = {} # station: StationEvent
+        self.serviceChains = [] # created by following the serviceids across sheets
 
-        self.rakecycles = []
+        # use the service chains to generate station events?
+        # wont that reuire another parse of the serviceCols?
+        # isnt it better for the service itself to contain station events?
+        self.rakecycles = [] # needs timing info
+    
+    # creates stationEvents
+    def generateRakeCycles(self):
+        pass
+
 
 class Rake:
     def __init__(self, id):
@@ -73,6 +84,7 @@ class Day(Enum):
     SUNDAY = 'sunday'
 
 class Service:
+    '''Purely what can be extracted from a single column'''
     def __init__(self, type: ServiceType):
         self.type = type # regular, stabling, multi-service
         self.zone = None # western, central
@@ -80,24 +92,23 @@ class Service:
         self.direction = None # UP (VR->CCG) or DOWN (CCG to VR)
         self.rakeSizeReq = None # 15 is default?, 12 is specified via "12 CAR", but what are blanks?
         self.needsACRake = False
-
+        self.initStation = None
         # by default each service is active each day
         # AC services have a date restriction
         # "multi-service" services have date restrictions.
         self.activeDates = set(Day) 
-
-        # self.rakeInUseId = None
-        self.name = None
-
-        self.initStation = None
-        self.finalStation = None
-        self.stationPath = [] # stations skipped can be generated.
 
         # service id after reversal at last station. 
         # Will be used to generate the rake cycle.
         # i.e. the next service integer ID. Will be in
         # the up timetable
         self.linkedTo = None 
+
+        self.finalStation = None
+        self.stationPath = [] # stations skipped can be generated.
+
+        # self.rakeInUseId = None
+        # self.name = None
     
     def getLastStation(self):
         return self.stationPath[-1]
@@ -107,6 +118,9 @@ class Service:
     
 class StationEvent:
     def __init__(self):
+        self.atStation = None
+        self.ofService = None 
+
         self.platform = None
         self.tArrival = None
         self.tDeparture = None
@@ -135,6 +149,8 @@ class TimeTableParser:
         self.wtt = TimeTable()
 
         self.wttSheets = []
+        self.stationCol = None
+
         self.xlsxToDf(filePathXlsx)
         self.registerStations()
         self.registerServices()
@@ -153,35 +169,37 @@ class TimeTableParser:
     
     # always use cleancol before working with a column
     def cleanCol(self, sheet, colIdx):
-        '''Removes whitespace and NaNs from a given column
-        Returns a <class 'pandas.core.series.Series'> object'''
-        # iloc -> :,colIdx == every row ie. full slice (:) in the column 
-        # indexed by colIdx
-        clean = sheet.iloc[:, colIdx].dropna().astype(str)
+        '''Return the column as-is unless it is entirely NaN or whitespace.'''
+        clean = sheet.iloc[:, colIdx].astype(str)
 
-        # are non-NaN entries all whitespace?
-        if clean.str.fullmatch(r'\s*').all():
-            # return blank column
+        # Check if all entries are NaN or whitespace (after conversion to str)
+        if clean.isna().all() or clean.str.fullmatch(r'(nan|\s*)', na=False).all():
             return pd.Series(dtype=str)
-        
-        if (colIdx == 0):
-            mask =  clean.str.fullmatch(r'\s*')
-            # invert mask to keep non-blank rows
-            clean = clean[~mask]
-        
+
+        # if (colIdx == 0):
+        #     mask =  clean.str.fullmatch(r'\s*')
+        #     # invert mask to keep non-blank rows
+        #     clean = clean[~mask]
+
         return clean
 
     def registerStations(self):
         '''Create an object corresponding to every station on the network'''
         sheet = self.upSheet # a dataframe
-        stationCol = self.cleanCol(sheet, 0) # 0 column index of station
+        self.stationCol = sheet.iloc[:, 0]
+        # self.stationCol = self.cleanCol(sheet, 0) # 0 column index of station
         # print(stationCol)
 
-        for idx, st_name in enumerate(stationCol[1:-2]): # to skip the linkage line
-            st_name = st_name.strip()
-            st = Station(idx, st_name)
-            print(f"Registering station {st_name}, idx {idx}")
-            self.wtt.stations[st_name] = st 
+        for idx, rawVal in enumerate(self.stationCol[1:-2]): # to skip the linkage line
+            if pd.isna(rawVal):
+                continue
+            stName = str(rawVal).strip()
+            if not stName:
+                continue
+            
+            st = Station(idx, stName.upper())
+            print(f"Registering station {st.name}, idx {st.id}")
+            self.wtt.stations[st.name] = st 
 
     # First station with a valid time
     # "EX ..."
@@ -190,6 +208,7 @@ class TimeTableParser:
         '''Determines the first arrival station in the service path.
         serviceCol: pandas.Series
         sheet: pandas.Dataframe'''
+        # print(serviceCol)
 
         # for every column:
         # stop at the first time string
@@ -200,18 +219,26 @@ class TimeTableParser:
         stationName = None
         for rowIdx, cell in serviceCol.items():
             if TimeTableParser.rTimePattern.match(cell):
-                row = sheet.iloc[rowIdx, :].astype(str)
-                stationName = str(row.iloc[0]).strip()
+                stationName = sheet.iat[rowIdx, 0]
+                # row = sheet.iloc[rowIdx, :].astype(str)
+                # stationName = row.iloc[0]
                 # print(f"{stationName}: {cell}")
 
-                if (not stationName): # ex. virar mismatch
-                    # check row above
-                    row = sheet.iloc[rowIdx - 1, :].astype(str)
-                    stationName = str(row.iloc[0]).strip()
-                    # print(f"{stationName}: {cell}")
+
+                if pd.isna(stationName) or not str(stationName).strip():
+                    # check row above if possible
+                    if rowIdx > 0:
+                        stationName = sheet.iat[rowIdx - 1, 0]
                 break
 
-        station = self.wtt.stations[stationName]
+        if pd.isna(stationName) or not str(stationName).strip():
+            raise ValueError(f"Invalid station name near row {rowIdx}")
+        
+        # print(self.wtt.stations.keys())
+        if stationName == "M'BAI CENTRAL (L)":
+            stationName = "M'BAI CENTRAL(L)" # hack special case. make names identical in wtt is the right solution
+
+        station = self.wtt.stations[stationName.strip().upper()]
         assert(station)
         return station
 
@@ -219,6 +246,7 @@ class TimeTableParser:
     def extractInitialDepot(self, serviceID):
         '''Every service must start at some yard/carshed. These
         are specified in the WTT-Summary Sheet.'''
+        pass
         
 
 
@@ -231,6 +259,37 @@ class TimeTableParser:
         # last station in stations, i.e. CCG
         for cell in serviceCol:
             pass
+    
+    def extractLinkedToNext(self, serviceCol):
+        '''Find the linked service (if any) following a 'Reversed as' entry.'''
+        mask = self.stationCol.str.contains("Reversed as", case=False, na=False)
+        match = self.stationCol[mask]
+
+        if match.empty:
+            return None
+
+        rowIdx = match.index[0]
+
+        # Guard
+        if rowIdx + 1 not in serviceCol.index:
+            return None
+
+        depTime = serviceCol.loc[rowIdx]
+        linkedService = serviceCol.loc[rowIdx + 1]
+
+        # Convert safely, handle NaN/None/float cases
+        if pd.isna(linkedService) or pd.isna(depTime):
+            return None
+
+        depTime = str(depTime).strip()
+        linkedService = str(linkedService).strip()
+
+        # Skip empty
+        if not depTime or depTime.lower() == "nan" or not linkedService or linkedService.lower() == "nan":
+            linkedService = None
+
+        # print(f"Linked to: {linkedService} at {depTime}")
+        return linkedService
 
     @staticmethod
     def extractServiceHeader(serviceCol):
@@ -279,24 +338,12 @@ class TimeTableParser:
     def extractActiveDates(serviceCol):
         pass
 
-
-
-    # Regular service columns, we parse:
-    # - Stations with arrival and departures.
-    def registerServices(self):
-        '''Enumerate every possible service, extract arrival-departure timings. Populate
-        the Station events. For now, store up and down services seperately
-        '''
-        UP_TT_NON_DRD_COLUMNS = 949
-        sheet = self.upSheet
+    def doRegisterServices(self, sheet, direction, numCols):
         serviceCols = sheet.columns
-
-        # create a service object for each service column
-        # in UP direction
-        for col in serviceCols[2:UP_TT_NON_DRD_COLUMNS]:
+        for col in serviceCols[2:numCols]:
             idx = serviceCols.get_loc(col)
             clean = self.cleanCol(sheet, idx)
-            # print(clean)
+            print(clean)
             if (clean.empty):
                 continue
             # skip repeat STATION columns
@@ -314,7 +361,7 @@ class TimeTableParser:
             # if we are here, the column is a service column
             # extract service ID and 
             service = Service(ServiceType.REGULAR)
-            service.direction = Direction.UP
+            service.direction = direction
 
             sIds, rakeSize, zone = TimeTableParser.extractServiceHeader(clean)
             # assign service id(s)
@@ -323,21 +370,44 @@ class TimeTableParser:
             if (len(sIds) > 1):
                 service.type = ServiceType.MULTI_SERVICE # multiple SIDs
 
-            service.serviceIds = sIds
+            service.serviceId = sIds
             service.rakeSizeReq = rakeSize
             service.zone = zone
 
             # needs AC?
             # Most AC services have specific dates.
             service.needsACRake = TimeTableParser.extractACRequirement(clean)
-            # print(f"{service.serviceIds}: {service.needsACRake}")
+            # print(f"{service.serviceId}: {service.needsACRake}")
 
             # retrieve the station path 
             service.initStation = self.extractInitStation(clean, sheet)
-            print(f"Init station for {service.serviceIds}: {service.initStation.name}")
+            # print(f"Init station for {service.serviceId}: {service.initStation.name}")
 
-            # Finally
-            self.wtt.upServices.append(service)
+            service.linkedTo = self.extractLinkedToNext(clean)
+            print(f"Service {service.serviceId} linked to service: {service.linkedTo}")
+
+            if direction == Direction.UP:
+                self.wtt.upServices.append(service)
+            elif direction == Direction.DOWN:
+                self.wtt.downServices.append(service)
+            else:
+                print("No other possibility")
+
+    # Regular service columns, we parse:
+    # - Stations with arrival and departures.
+    def registerServices(self):
+        '''Enumerate every possible service, extract arrival-departure timings. Populate
+        the Station events. For now, store up and down services seperately
+        '''
+        UP_TT_COLUMNS = 949 # with uniform row indexing
+        upSheet = self.upSheet
+        # self.doRegisterServices(upSheet, Direction.UP, UP_TT_COLUMNS)
+
+        print("Now register down services")
+        downSheet = self.downSheet
+        DOWN_TT_COLUMNS = 949 # with uniform row indexing
+        self.doRegisterServices(downSheet, Direction.DOWN, DOWN_TT_COLUMNS)
+
 
             
 
