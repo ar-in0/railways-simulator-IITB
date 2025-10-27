@@ -8,6 +8,7 @@
 # during the peak hour
 import pandas as pd
 import re
+from collections import defaultdict
 
 # to check column colour, need to create an authentication
 # with google sheets. Downloading the file strips colour information.
@@ -46,49 +47,71 @@ class TimeTable:
         # We simply find those services, get the stationpath with 
         print(rakecycle)
 
+    # We have a digraph, with nodes v repreented by 
+    # Services, and edge (u,v) rep by `u.linkedTo = v`.
+    # Rake-Links are CCs of the graph.
+    # Our task is to identify the CCs given a set of Nodes
+    # and Edges ie. G = (V, E)
+    # Invariants for valid WTT:
+    # - No cycles in CCs
     def makeRakeCyclePathsSV(self, services):
-        '''Iterate over the wtt parsed services and follow the linked-to
-            services. This is later verified with the rakecycles generated
-            from the summary to create a single rake-cycle paths, and
-            these are subsequently populated with timings.
         '''
-        # append current service to a rake-cycle list
-        # if linkedTo = None, terminate
-        # else
-        # append linkedTo service to the rake-cycle list
-        # curr service = previous linked to
-        # do the above for every service in the list.
-        # if a service is visited already, can skip it.
-        visited = set()
-
+        Build rake-cycle paths by recursively following directed `linkedTo` chains.
+        Each service node stores both `prev` and `next` links.
+        '''
         idMap = {sid: s for s in services for sid in s.serviceId}
+        adj = defaultdict(lambda: {'prev': None, 'next': None})
 
-        for sv in services:
-            if sv in visited:
+        # build directed links
+        for sv in idMap.values():
+            sid = sv.serviceId[0]
+            if not sv.linkedTo:
+                continue
+            try:
+                nextId = int(str(sv.linkedTo).strip())
+            except ValueError:
+                nextId = str(sv.linkedTo).strip()
+
+            if nextId not in idMap:
                 continue
 
-            path = []
-            curr = sv
-            while curr and curr not in visited:
-                visited.add(curr)
-                path.append(curr)
+            adj[sid]['next'] = nextId
+            adj[nextId]['prev'] = sid
 
-                # get next linked
-                if not curr.linkedTo:
-                    break
+        visited = set()
 
-                next = idMap.get(int(curr.linkedTo))
-                if not next or next in visited:
-                    break
+        def followChain(sid, chain):
+            if sid in visited or sid not in idMap:
+                return
+            visited.add(sid)
+            chain.append(idMap[sid])
+            nxt = adj[sid]['next']
+            if nxt:
+                followChain(nxt, chain)
 
-                curr = next
+        for sid in idMap:
+            if sid in visited:
+                continue
+            if adj[sid]['prev'] is not None:
+                continue  # not a starting node
+            if adj[sid]['next'] is None:
+                continue  # isolated or terminal only
 
-            self.allCyclesWtt.append(path)
-        
-    
+            chain = []
+            followChain(sid, chain)
+            if chain:
+                self.allCyclesWtt.append(chain)
+
+        print(f"Constructed {len(self.allCyclesWtt)} rake-cycle paths.")
+
     # creates stationEvents
     def generateRakeCycles(self):
-        self.suburbanServices.sort(key=lambda sv: sv.serviceId[0])
+        self.suburbanServices.sort(
+            key=lambda sv: (
+                isinstance(sv.serviceId[0], int),  # False (0) for strings, True (1) for ints
+                sv.serviceId[0]                    # then sort by the ID itself
+            )
+        )
         for sv in self.suburbanServices:
             print(sv)
 
@@ -258,8 +281,9 @@ class Station:
 class TimeTableParser:
     rCentralRailwaysPattern = re.compile(r'^[Cc]\.\s*[Rr][Ll][Yy]\.?$')
     rTimePattern = re.compile(r'^(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d)?$')
-    rServiceIDPattern = re.compile(rf'^\d{{{SERVICE_ID_LEN}}}$')
+    rServiceIDPattern = re.compile(r'^\s*\d{5}(?:\b.*)?$', re.IGNORECASE)
     rLinkNamePattern = re.compile(r'^[A-Z]{1,3}$')  # matches A, B, AK, etc.
+    rEtyPattern = re.compile(r'\bETY\s*\d+\b', re.IGNORECASE)
 
     def __init__(self, fpWttXlsx, fpWttSummaryXlsx):
         self.wtt = TimeTable()
@@ -288,8 +312,16 @@ class TimeTableParser:
     
     def isolateSuburbanServices(self):
         suburbanIds = set()
+        print("Updating suburban")
+        seen, repeated = set(), set()
         for rc in self.wtt.rakecycles:
+            print(rc.services.keys())
             suburbanIds.update(rc.services.keys())
+            s = set(rc.services.keys())
+            repeated |= seen & s
+            seen |= s
+        print(repeated)
+        
 
         suburbanServices = []
         for s in (self.wtt.upServices + self.wtt.downServices):
@@ -322,9 +354,24 @@ class TimeTableParser:
             for cell in sIDRow.iloc[2:]:
                 if pd.isna(cell):
                     continue
-                cell = str(cell).strip()
-                if cell.isdigit() and len(cell) == SERVICE_ID_LEN:
-                    sIds.append(int(cell))
+                cell = str(cell)
+                
+                # use the serviceID idiom
+                if TimeTableParser.isServiceID(cell):
+                    # numeric or ETY-style
+                    matchEty = TimeTableParser.rEtyPattern.search(cell)
+                    if matchEty:
+                        sIds.append(matchEty.group(0))  # store the ETY token as string
+                    else:
+                        print("no ety")
+                        print(cell)
+                        sIds.append(int(re.search(r'\d+', cell).group())) # extract the integer ex 93232 L/SPL
+
+                #     # ETY 6, ETY 13 missing, incomplete links
+                # cell = str(cell).strip()
+                # match = re.match(rf'^\s*(\d{{{SERVICE_ID_LEN}}})\b', str(cell).strip())
+                # if match:
+                #     sIds.append(int(match.group(1)))
 
             if not sIds:
                 continue
@@ -499,6 +546,10 @@ class TimeTableParser:
                         if pd.isna(stName) or not str(stName).strip():
                             stName = sheet.iat[rowIdx - 2, 0]
                     # stName = str(self.stationCol.iloc[rowIdx]).strip().upper()
+                    if str(stName).strip() == "M'BAI CENTRAL (L)":
+                        # hack special case. 
+                        # make names identical in wtt is the right solution
+                        stName = "M'BAI CENTRAL(L)" 
                     if str(stName).strip() in self.wtt.stations.keys():
                         station = self.wtt.stations[str(stName).strip()]
                         print(f"Last station from time: {str(stName).strip()}")
@@ -594,6 +645,18 @@ class TimeTableParser:
 
         # print(f"Linked to: {linkedService} at {depTime}")
         return linkedService
+    
+    @staticmethod
+    def isServiceID(cell): # cell must be str
+        # if empty, return False
+        if not cell or cell.strip().lower() == "nan":
+            return False
+        # service IDs may be ETY <integer>
+        # or 5-long positive integer + <some optional text>
+        return bool(
+            TimeTableParser.rServiceIDPattern.match(cell) or
+            TimeTableParser.rEtyPattern.search(cell)
+            )
 
     @staticmethod
     def extractServiceHeader(serviceCol):
@@ -613,10 +676,16 @@ class TimeTableParser:
             if TimeTableParser.rCentralRailwaysPattern.match(cell):
                 zone = ServiceZone.CENTRAL
 
-            if cell.isdigit() and len(cell) == SERVICE_ID_LEN:
-                ids.append(int(cell))
-                if (cell.startswith("9")):
-                    zone = ServiceZone.SUBURBAN
+            # return true 
+            if TimeTableParser.isServiceID(cell):
+                # numeric or ETY-style
+                matchEty = TimeTableParser.rEtyPattern.search(cell)
+                if matchEty:
+                    ids.append(matchEty.group(0))  # store the ETY token as string
+                else:
+                    ids.append(int(re.search(r'\d+', cell).group())) # extract the integer ex 93232 L/SPL
+                    if (cell.startswith("9")):
+                        zone = ServiceZone.SUBURBAN
 
             # check for CAR
             if "CAR" in cell.upper():

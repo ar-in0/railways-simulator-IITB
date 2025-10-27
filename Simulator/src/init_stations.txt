@@ -389,11 +389,11 @@ Last station from time,: CHURCHGATE
 Final Station for [92008]: CHURCHGATE
 Service [92008] linked to service: 92027
 <Service 92008 (UP, SUBURBAN, NON-AC, 15-CAR) VIRAR->CHURCHGATE linked:92027>
-Init station for []: MAHALAKSHMI
+Init station for ['ETY 2']: MAHALAKSHMI
 Last station from time,: CHURCHGATE
-Final Station for []: CHURCHGATE
-Service [] linked to service: 91047
-<Service None (UP, NA, NON-AC, 12-CAR) MAHALAKSHMI->CHURCHGATE linked:91047>
+Final Station for ['ETY 2']: CHURCHGATE
+Service ['ETY 2'] linked to service: 91047
+<Service ETY 2 (UP, NA, NON-AC, 12-CAR) MAHALAKSHMI->CHURCHGATE linked:91047>
 Init station for [90064]: BORIVALI
 Last station from time,: CHURCHGATE
 Final Station for [90064]: CHURCHGATE
@@ -3101,11 +3101,11 @@ Last station from time,: CHURCHGATE
 Final Station for [90652]: CHURCHGATE
 Service [90652] linked to service: 90703
 <Service 90652 (UP, SUBURBAN, NON-AC, 12-CAR) VIRAR->CHURCHGATE linked:90703>
-Init station for []: M'BAI CENTRAL(L)
+Init station for ['ETY 6']: M'BAI CENTRAL(L)
 Last station from time,: CHURCHGATE
-Final Station for []: CHURCHGATE
-Service [] linked to service: None
-<Service None (UP, NA, NON-AC, 12-CAR) M'BAI CENTRAL(L)->CHURCHGATE linked:None>
+Final Station for ['ETY 6']: CHURCHGATE
+Service ['ETY 6'] linked to service: None
+<Service ETY 6 (UP, NA, NON-AC, 12-CAR) M'BAI CENTRAL(L)->CHURCHGATE linked:None>
 Init station for [90654]: MALAD
 Last station from time,: CHURCHGATE
 Final Station for [90654]: CHURCHGATE
@@ -6217,10 +6217,10 @@ Final Station for [98831]: VIRAR
 Service [98831] linked to service: None
 <Service 98831 (DOWN, SUBURBAN, NON-AC, 15-CAR) PRABHADEVI->VIRAR linked:None>
 Init station for [90359]: CHURCHGATE
-Last station from time: CHURCHGATE
-Final Station for [90359]: CHURCHGATE
+Last station from time: M'BAI CENTRAL(L)
+Final Station for [90359]: M'BAI CENTRAL(L)
 Service [90359] linked to service: None
-<Service 90359 (DOWN, SUBURBAN, NON-AC, 12-CAR) CHURCHGATE->CHURCHGATE linked:None>
+<Service 90359 (DOWN, SUBURBAN, NON-AC, 12-CAR) CHURCHGATE->M'BAI CENTRAL(L) linked:None>
 Init station for [90361]: CHURCHGATE
 Last station from time,: VIRAR
 Final Station for [90361]: VIRAR
@@ -8559,10 +8559,10 @@ Final Station for [90909]: VIRAR
 Service [90909] linked to service: 90946
 <Service 90909 (DOWN, SUBURBAN, NON-AC, 12-CAR) CHURCHGATE->VIRAR linked:90946>
 Init station for [90911]: CHURCHGATE
-Last station from time: CHURCHGATE
-Final Station for [90911]: CHURCHGATE
+Last station from time: M'BAI CENTRAL(L)
+Final Station for [90911]: M'BAI CENTRAL(L)
 Service [90911] linked to service: None
-<Service 90911 (DOWN, SUBURBAN, NON-AC, 12-CAR) CHURCHGATE->CHURCHGATE linked:None>
+<Service 90911 (DOWN, SUBURBAN, NON-AC, 12-CAR) CHURCHGATE->M'BAI CENTRAL(L) linked:None>
 repeat stations
 adad column, skip
 Init station for [94095]: DADAR
@@ -8860,11 +8860,11 @@ Last station from time: BORIVALI
 Final Station for [90981]: BORIVALI
 Service [90981] linked to service: None
 <Service 90981 (DOWN, SUBURBAN, NON-AC, 12-CAR) CHURCHGATE->BORIVALI linked:None>
-Init station for []: CHURCHGATE
-Last station from time: CHURCHGATE
-Final Station for []: CHURCHGATE
-Service [] linked to service: None
-<Service None (DOWN, NA, NON-AC, 12-CAR) CHURCHGATE->CHURCHGATE linked:None>
+Init station for ['ETY 5']: CHURCHGATE
+Last station from time: M'BAI CENTRAL(L)
+Final Station for ['ETY 5']: M'BAI CENTRAL(L)
+Service ['ETY 5'] linked to service: None
+<Service ETY 5 (DOWN, NA, NON-AC, 12-CAR) CHURCHGATE->M'BAI CENTRAL(L) linked:None>
 Init station for [90983]: CHURCHGATE
 Last station from time,: VIRAR
 Final Station for [90983]: VIRAR
@@ -8902,11 +8902,11 @@ Last station from time: BORIVALI
 Final Station for [90993]: BORIVALI
 Service [90993] linked to service: None
 <Service 90993 (DOWN, SUBURBAN, NON-AC, 12-CAR) CHURCHGATE->BORIVALI linked:None>
-Init station for []: CHURCHGATE
-Last station from time: CHURCHGATE
-Final Station for []: CHURCHGATE
-Service [] linked to service: None
-<Service None (DOWN, NA, AC, 12-CAR) CHURCHGATE->CHURCHGATE linked:None>
+Init station for ['ETY 7']: CHURCHGATE
+Last station from time: M'BAI CENTRAL(L)
+Final Station for ['ETY 7']: M'BAI CENTRAL(L)
+Service ['ETY 7'] linked to service: None
+<Service ETY 7 (DOWN, NA, AC, 12-CAR) CHURCHGATE->M'BAI CENTRAL(L) linked:None>
 Init station for [90995]: CHURCHGATE
 Last station from time: BORIVALI
 Final Station for [90995]: BORIVALI
@@ -8954,11 +8954,11 @@ Service [91001] linked to service: 91014
 <Service 91001 (DOWN, SUBURBAN, NON-AC, 12-CAR) CHURCHGATE->VIRAR linked:91014>
 repeat stations
 adad column, skip
-Init station for []: CHURCHGATE
-Last station from time: CHURCHGATE
-Final Station for []: CHURCHGATE
-Service [] linked to service: None
-<Service None (DOWN, NA, AC, 12-CAR) CHURCHGATE->CHURCHGATE linked:None>
+Init station for ['ETY 9']: CHURCHGATE
+Last station from time: M'BAI CENTRAL(L)
+Final Station for ['ETY 9']: M'BAI CENTRAL(L)
+Service ['ETY 9'] linked to service: None
+<Service ETY 9 (DOWN, NA, AC, 12-CAR) CHURCHGATE->M'BAI CENTRAL(L) linked:None>
 Init station for [22186, 11092, 11090, 11088, 11050]: NAIGAON
 'ARRL.'
 No station match near ARRL at row 37: ARRL.
@@ -9005,11 +9005,11 @@ Last station from time: ANDHERI
 Final Station for [91009]: ANDHERI
 Service [91009] linked to service: None
 <Service 91009 (DOWN, SUBURBAN, NON-AC, 12-CAR) CHURCHGATE->ANDHERI linked:None>
-Init station for []: CHURCHGATE
-Last station from time: CHURCHGATE
-Final Station for []: CHURCHGATE
-Service [] linked to service: None
-<Service None (DOWN, NA, NON-AC, 12-CAR) CHURCHGATE->CHURCHGATE linked:None>
+Init station for ['ETY 11']: CHURCHGATE
+Last station from time: M'BAI CENTRAL(L)
+Final Station for ['ETY 11']: M'BAI CENTRAL(L)
+Service ['ETY 11'] linked to service: None
+<Service ETY 11 (DOWN, NA, NON-AC, 12-CAR) CHURCHGATE->M'BAI CENTRAL(L) linked:None>
 Init station for [12283]: NAIGAON
 'ARRL.'
 No station match near ARRL at row 37: ARRL.
@@ -9065,11 +9065,11 @@ Last station from time: DADAR
 Final Station for [91021]: DADAR
 Service [91021] linked to service: None
 <Service 91021 (DOWN, SUBURBAN, NON-AC, 12-CAR) CHURCHGATE->DADAR linked:None>
-Init station for []: CHURCHGATE
-Last station from time: CHURCHGATE
-Final Station for []: CHURCHGATE
-Service [] linked to service: None
-<Service None (DOWN, NA, NON-AC, 12-CAR) CHURCHGATE->CHURCHGATE linked:None>
+Init station for ['ETY 13']: CHURCHGATE
+Last station from time: M'BAI CENTRAL(L)
+Final Station for ['ETY 13']: M'BAI CENTRAL(L)
+Service ['ETY 13'] linked to service: None
+<Service ETY 13 (DOWN, NA, NON-AC, 12-CAR) CHURCHGATE->M'BAI CENTRAL(L) linked:None>
 Init station for [12927]: DADAR
 Last station from time: BANDRA
 Final Station for [12927]: BANDRA
@@ -9113,15 +9113,15 @@ Service [98787] linked to service: None
 repeat stations
 adad column, skip
 Init station for [91027]: CHURCHGATE
-Last station from time: CHURCHGATE
-Final Station for [91027]: CHURCHGATE
+Last station from time: M'BAI CENTRAL(L)
+Final Station for [91027]: M'BAI CENTRAL(L)
 Service [91027] linked to service: None
-<Service 91027 (DOWN, SUBURBAN, NON-AC, 12-CAR) CHURCHGATE->CHURCHGATE linked:None>
+<Service 91027 (DOWN, SUBURBAN, NON-AC, 12-CAR) CHURCHGATE->M'BAI CENTRAL(L) linked:None>
 Init station for [91029]: CHURCHGATE
-Last station from time: CHURCHGATE
-Final Station for [91029]: CHURCHGATE
+Last station from time: M'BAI CENTRAL(L)
+Final Station for [91029]: M'BAI CENTRAL(L)
 Service [91029] linked to service: None
-<Service 91029 (DOWN, SUBURBAN, NON-AC, 12-CAR) CHURCHGATE->CHURCHGATE linked:None>
+<Service 91029 (DOWN, SUBURBAN, NON-AC, 12-CAR) CHURCHGATE->M'BAI CENTRAL(L) linked:None>
 Init station for [15068]: SANTA CRUZ
 Last station from time: VIRAR
 Final Station for [15068]: VIRAR
@@ -9152,11 +9152,11 @@ Last station from time: CHURCHGATE
 Final Station for [91033]: CHURCHGATE
 Service [91033] linked to service: None
 <Service 91033 (DOWN, SUBURBAN, NON-AC, 12-CAR) CHURCHGATE->CHURCHGATE linked:None>
-Init station for []: CHURCHGATE
-Last station from time: CHURCHGATE
-Final Station for []: CHURCHGATE
-Service [] linked to service: None
-<Service None (DOWN, NA, NON-AC, 12-CAR) CHURCHGATE->CHURCHGATE linked:None>
+Init station for ['ETY 15']: CHURCHGATE
+Last station from time: M'BAI CENTRAL(L)
+Final Station for ['ETY 15']: M'BAI CENTRAL(L)
+Service ['ETY 15'] linked to service: None
+<Service ETY 15 (DOWN, NA, NON-AC, 12-CAR) CHURCHGATE->M'BAI CENTRAL(L) linked:None>
 Init station for [91035]: ANDHERI
 Last station from time: BORIVALI
 Final Station for [91035]: BORIVALI
@@ -9189,11 +9189,11 @@ Service [91043] linked to service: None
 <Service 91043 (DOWN, SUBURBAN, NON-AC, 12-CAR) CHURCHGATE->VIRAR linked:None>
 repeat stations
 adad column, skip
-Init station for []: CHURCHGATE
-Last station from time: CHURCHGATE
-Final Station for []: CHURCHGATE
-Service [] linked to service: None
-<Service None (DOWN, NA, NON-AC, 12-CAR) CHURCHGATE->CHURCHGATE linked:None>
+Init station for ['ETY 17']: CHURCHGATE
+Last station from time: M'BAI CENTRAL(L)
+Final Station for ['ETY 17']: M'BAI CENTRAL(L)
+Service ['ETY 17'] linked to service: None
+<Service ETY 17 (DOWN, NA, NON-AC, 12-CAR) CHURCHGATE->M'BAI CENTRAL(L) linked:None>
 Init station for [91045]: CHURCHGATE
 Last station from time: BORIVALI
 Final Station for [91045]: BORIVALI
@@ -9230,6 +9230,2602 @@ Final Station for [91055]: BORIVALI
 Service [91055] linked to service: None
 <Service 91055 (DOWN, SUBURBAN, NON-AC, 12-CAR) CHURCHGATE->BORIVALI linked:None>
 Summary sheet rows: 476
+no ety
+93002
+no ety
+93009
+no ety
+93014
+no ety
+90428
+no ety
+90497
+no ety
+90546
+no ety
+90607
+no ety
+90666
+no ety
+90731
+no ety
+90814
+no ety
+90889
+no ety
+90936
+no ety
+91003
+no ety
+93004
+no ety
+90247
+no ety
+91392
+no ety
+91393
+no ety
+91394
+no ety
+91395
+no ety
+91396
+no ety
+91491
+no ety
+90948
+no ety
+91011
+no ety
+91020
+no ety
+90006
+no ety
+90165
+no ety
+90202
+no ety
+90259
+no ety
+90326
+no ety
+90385
+no ety
+90442
+no ety
+90495
+no ety
+90552
+no ety
+90611
+no ety
+90656
+no ety
+90719
+no ety
+90862
+no ety
+90919
+no ety
+90018
+no ety
+90041
+no ety
+90158
+no ety
+90197
+no ety
+90288
+no ety
+90349
+no ety
+90448
+no ety
+90469
+no ety
+90572
+no ety
+90617
+no ety
+90660
+no ety
+90723
+no ety
+90786
+no ety
+90855
+no ety
+90867
+no ety
+90028
+no ety
+90030
+no ety
+90071
+no ety
+90142
+no ety
+90199
+no ety
+90264
+no ety
+90315
+no ety
+90408
+no ety
+90465
+no ety
+90514
+no ety
+90577
+no ety
+90638
+no ety
+90705/L.SPL
+no ety
+90782
+no ety
+90849
+no ety
+90916
+no ety
+90989
+no ety
+90038
+no ety
+93007
+no ety
+93012
+no ety
+93021
+no ety
+93026
+no ety
+90657
+no ety
+90728
+no ety
+90793
+no ety
+90866
+no ety
+90939
+no ety
+90978
+no ety
+93001
+no ety
+93006
+no ety
+93013
+no ety
+93018
+no ety
+93025
+no ety
+93030
+no ety
+93037
+no ety
+93042
+no ety
+92004
+no ety
+92021
+no ety
+92036
+no ety
+92039
+no ety
+92050
+no ety
+92057
+no ety
+92078
+no ety
+92099
+no ety
+92114
+no ety
+92131
+no ety
+92148
+no ety
+92151
+no ety
+92170
+no ety
+92177
+no ety
+92188
+no ety
+92195
+no ety
+92202
+no ety
+90070
+no ety
+90109
+no ety
+90172
+no ety
+90227
+no ety
+90272
+no ety
+90325
+no ety
+90378
+no ety
+90433
+no ety
+90490
+no ety
+90549
+no ety
+90606
+no ety
+90673
+no ety
+90736
+no ety
+90799
+no ety
+90828
+no ety
+90901
+no ety
+90952
+no ety
+91015
+no ety
+90084
+no ety
+90086
+no ety
+90147
+no ety
+90280
+no ety
+90337
+no ety
+90619
+no ety
+90766
+no ety
+90701
+no ety
+90844
+no ety
+90903
+no ety
+90984
+no ety
+93003
+no ety
+93008
+no ety
+93019
+no ety
+93024
+no ety
+93029
+no ety
+93034
+no ety
+93041
+no ety
+94016
+no ety
+94021
+no ety
+94034
+no ety
+94039
+no ety
+94050
+no ety
+94055
+no ety
+94068
+no ety
+94075
+no ety
+94082
+no ety
+94089
+no ety
+94100
+no ety
+90012
+no ety
+90014
+no ety
+90053
+no ety
+90182
+no ety
+90217
+no ety
+90350
+no ety
+90409
+no ety
+90460
+no ety
+90517
+no ety
+90566
+no ety
+90625
+no ety
+90680
+no ety
+90745
+no ety
+90826
+no ety
+90899
+no ety
+94002
+no ety
+94004
+no ety
+94005
+no ety
+94012
+no ety
+94017
+no ety
+94030
+no ety
+94035
+no ety
+94046
+no ety
+94051
+no ety
+94064
+no ety
+94071
+no ety
+94086
+no ety
+94091
+no ety
+94102
+no ety
+90046
+no ety
+90083
+no ety
+90190
+no ety
+90195
+no ety
+90322
+no ety
+90355
+no ety
+90470
+no ety
+90519
+no ety
+90614
+no ety
+90669
+no ety
+90726
+no ety
+90789
+no ety
+90794
+no ety
+90863
+no ety
+90922
+no ety
+90991
+no ety
+94006
+no ety
+94009
+no ety
+94014
+no ety
+94019
+no ety
+94026
+no ety
+94031
+no ety
+94036
+no ety
+94041
+no ety
+94054
+no ety
+94061
+no ety
+94074
+no ety
+94076
+no ety
+94079
+no ety
+94092
+no ety
+94097
+no ety
+94104
+no ety
+94103
+no ety
+92006
+no ety
+92013
+no ety
+92028
+no ety
+92037
+no ety
+92062
+no ety
+92059
+no ety
+92072
+no ety
+92091
+no ety
+92104
+no ety
+92115
+no ety
+92134
+no ety
+92137
+no ety
+92154
+no ety
+92165
+no ety
+92180
+no ety
+92189
+no ety
+92194
+no ety
+92205
+no ety
+92208
+no ety
+92022
+no ety
+92033
+no ety
+92052
+no ety
+92055
+no ety
+92074
+no ety
+92081
+no ety
+92098
+no ety
+92101
+no ety
+92118
+no ety
+92123
+no ety
+92140
+no ety
+92145
+no ety
+92164
+no ety
+92179
+no ety
+92002
+no ety
+92009
+no ety
+92024
+no ety
+92047
+no ety
+92066
+no ety
+92075
+no ety
+92092
+no ety
+92107
+no ety
+92126
+no ety
+92143
+no ety
+92158
+no ety
+92181
+no ety
+90054
+no ety
+90091
+no ety
+90216
+no ety
+90240
+no ety
+90291
+no ety
+90386
+no ety
+90425
+no ety
+90506
+no ety
+90547
+no ety
+90658
+no ety
+90645
+no ety
+90792
+no ety
+90843
+no ety
+90896
+no ety
+90951
+no ety
+92008
+no ety
+92027
+no ety
+92042
+no ety
+92065
+no ety
+92080
+no ety
+92095
+no ety
+92110
+no ety
+92113*
+no ety
+92128
+no ety
+92127
+no ety
+92144
+no ety
+92149
+no ety
+92168
+no ety
+92163
+no ety
+92178
+no ety
+92187
+no ety
+92198
+no ety
+92207
+no ety
+90074
+no ety
+90113
+no ety
+90252
+no ety
+90287
+no ety
+90422
+no ety
+90727
+no ety
+90808
+no ety
+90881
+no ety
+90918
+no ety
+90987
+no ety
+91008
+no ety
+91055
+no ety
+92018
+no ety
+92023
+no ety
+92038
+no ety
+92051
+no ety
+92070
+no ety
+92079
+no ety
+92096
+no ety
+92103
+no ety
+92120
+no ety
+92129
+no ety
+92146
+no ety
+92155
+no ety
+92174
+no ety
+92193
+no ety
+92200
+no ety
+92030
+no ety
+92049
+no ety
+92068
+no ety
+92063
+no ety
+92082
+no ety
+92089
+no ety
+92108
+no ety
+92125
+no ety
+92142
+no ety
+92153
+no ety
+92172
+no ety
+92173
+no ety
+90206
+no ety
+90245
+no ety
+90300
+no ety
+90339
+no ety
+90654
+no ety
+90707
+no ety
+90774
+no ety
+90839
+no ety
+92058
+no ety
+92071
+no ety
+92160
+no ety
+92167
+no ety
+92184
+no ety
+92191
+no ety
+92010
+no ety
+92019
+no ety
+92040
+no ety
+92041
+no ety
+92054
+no ety
+92067
+no ety
+92086
+no ety
+92105
+no ety
+92122
+no ety
+92135
+no ety
+92150
+no ety
+92161
+no ety
+90020
+no ety
+90049
+no ety
+90164
+no ety
+90201
+no ety
+90356
+no ety
+90391
+no ety
+90690
+no ety
+90739
+no ety
+90868
+no ety
+90865
+no ety
+90960
+no ety
+90985
+no ety
+90034
+no ety
+90055
+no ety
+90174
+no ety
+90211
+no ety
+90278
+no ety
+90317
+no ety
+90319
+no ety
+90454
+no ety
+90457
+no ety
+90536
+no ety
+93031
+no ety
+93036
+no ety
+90933
+no ety
+91006
+no ety
+91053
+no ety
+90042
+no ety
+90073
+no ety
+90196
+no ety
+90239
+no ety
+90304
+no ety
+90345
+no ety
+90458
+no ety
+90509
+no ety
+90556
+no ety
+90601
+no ety
+90730
+no ety
+90741
+no ety
+90802
+no ety
+90851
+no ety
+90954
+no ety
+90050
+no ety
+90171
+no ety
+90238
+no ety
+90279
+no ety
+90330
+no ety
+90389
+no ety
+90689
+no ety
+90770
+no ety
+90833
+no ety
+90900
+no ety
+90967
+no ety
+90058
+no ety
+90107
+no ety
+90160
+no ety
+90215
+no ety
+90306
+no ety
+90359
+no ety
+90062
+no ety
+90105
+no ety
+90244
+no ety
+90293
+no ety
+90348
+no ety
+90407
+no ety
+90512
+no ety
+90559
+no ety
+90596
+no ety
+90661
+no ety
+90738
+no ety
+90801
+no ety
+90850
+no ety
+90925
+no ety
+90972
+no ety
+91029
+no ety
+90072
+no ety
+90123
+no ety
+90260
+no ety
+90295
+no ety
+90370
+no ety
+90415
+no ety
+90768
+no ety
+90815
+no ety
+90870
+no ety
+90941
+no ety
+90980
+no ety
+90108
+no ety
+90157
+no ety
+90222
+no ety
+90273
+no ety
+90394
+no ety
+90435
+no ety
+90476
+no ety
+90533
+no ety
+90558
+no ety
+90621
+no ety
+90682
+no ety
+90747
+no ety
+90804
+no ety
+90875
+no ety
+90882
+no ety
+90953
+no ety
+90186
+no ety
+93015
+no ety
+93020
+no ety
+93027
+no ety
+93032
+no ety
+93039
+no ety
+90208
+no ety
+90249
+no ety
+90648
+no ety
+90659
+no ety
+90858
+no ety
+90807
+no ety
+90938
+no ety
+90993
+no ety
+90234
+no ety
+90267
+no ety
+90406
+no ety
+90455
+no ety
+90548
+no ety
+90597
+no ety
+90668
+no ety
+90665
+no ety
+90800
+no ety
+90811
+no ety
+90274 L/SPL
+no ety
+90329
+no ety
+90420
+no ety
+90475
+no ety
+90532
+no ety
+90593
+no ety
+90636
+no ety
+90697
+no ety
+90776
+no ety
+90841
+no ety
+90908
+no ety
+90977
+no ety
+91004
+no ety
+91051
+no ety
+90003
+no ety
+90098
+no ety
+90127
+no ety
+90270
+no ety
+90307
+no ety
+90634
+no ety
+90687
+no ety
+90754
+no ety
+90819
+no ety
+90934
+no ety
+90983
+no ety
+91024
+no ety
+90009
+no ety
+90120
+no ety
+90153
+no ety
+90294
+no ety
+90237
+no ety
+90346
+no ety
+90443
+no ety
+90526
+no ety
+90589
+no ety
+90646
+no ety
+90713
+no ety
+90790
+no ety
+90861
+no ety
+90902
+no ety
+90969
+no ety
+92007
+no ety
+92020
+no ety
+92017
+no ety
+92034
+no ety
+92043
+no ety
+92064
+no ety
+92061
+no ety
+92084
+no ety
+92085
+no ety
+92102
+no ety
+92111
+no ety
+92130
+no ety
+92175
+no ety
+92190
+no ety
+92201
+no ety
+90035
+no ety
+90152
+no ety
+90205
+no ety
+90296
+no ety
+90353
+no ety
+90426
+no ety
+90483
+no ety
+90540
+no ety
+90603
+no ety
+90662
+no ety
+90729
+no ety
+90872
+no ety
+90905
+no ety
+90942
+no ety
+91007
+no ety
+94007
+no ety
+94020
+no ety
+94025
+no ety
+94032
+no ety
+94037
+no ety
+94048
+no ety
+94053
+no ety
+94062
+no ety
+94067
+no ety
+94084
+no ety
+94085
+no ety
+94096
+no ety
+94099
+no ety
+90004
+no ety
+90033
+no ety
+90150
+no ety
+90189
+no ety
+90334
+no ety
+90375
+no ety
+90484
+no ety
+90539
+no ety
+90598
+no ety
+90663
+no ety
+90742
+no ety
+90809
+no ety
+90878
+no ety
+90947
+no ety
+90957
+no ety
+90008
+no ety
+90045
+no ety
+90112
+no ety
+90163
+no ety
+90254
+no ety
+90301
+no ety
+90398
+no ety
+90449
+no ety
+90562
+no ety
+90605
+no ety
+90688
+no ety
+90735
+no ety
+90796
+no ety
+90871
+no ety
+90930
+no ety
+90997
+no ety
+90016
+no ety
+90051
+no ety
+90116
+no ety
+90169
+no ety
+90256
+no ety
+90305
+no ety
+90402
+no ety
+90459
+no ety
+90502
+no ety
+90557
+no ety
+90620
+no ety
+90685
+no ety
+90840
+no ety
+90895
+no ety
+90928
+no ety
+90995
+no ety
+90022
+no ety
+90059
+no ety
+90126
+no ety
+90175
+no ety
+90224
+no ety
+90277
+no ety
+90368
+no ety
+90419
+no ety
+90472
+no ety
+90527
+no ety
+90580
+no ety
+90649
+no ety
+90718
+no ety
+90783
+no ety
+90816
+no ety
+90891
+no ety
+90940
+no ety
+91005
+no ety
+90032
+no ety
+90077
+no ety
+90144
+no ety
+90203
+no ety
+90292
+no ety
+90351
+no ety
+90410
+no ety
+90467
+no ety
+90516
+no ety
+90581
+no ety
+90618
+no ety
+90845
+no ety
+90894
+no ety
+90965
+no ety
+90998
+no ety
+91049
+no ety
+90040
+no ety
+90087
+no ety
+90154
+no ety
+90209
+no ety
+90276
+no ety
+90333
+no ety
+90704
+no ety
+90753
+no ety
+90810
+no ety
+90885
+no ety
+90932
+no ety
+90999
+no ety
+90048
+no ety
+90093
+no ety
+90166
+no ety
+90223
+no ety
+90282
+no ety
+90313
+no ety
+90440
+no ety
+90491
+no ety
+90588
+no ety
+90637
+no ety
+90720
+no ety
+90769
+no ety
+90854
+no ety
+90915
+no ety
+90056
+no ety
+90101
+no ety
+90178
+no ety
+90231
+no ety
+90302
+no ety
+90357
+no ety
+90369
+no ety
+90498
+no ety
+90541
+no ety
+90652
+no ety
+90703
+no ety
+90832
+no ety
+90893
+no ety
+90976
+no ety
+91031
+no ety
+90066
+no ety
+90119
+no ety
+90198
+no ety
+90253
+no ety
+90318
+no ety
+90377
+no ety
+90633
+no ety
+90700
+no ety
+90767
+no ety
+90884
+no ety
+90883
+no ety
+90104
+no ety
+90143
+no ety
+90204
+no ety
+90243
+no ety
+90388
+no ety
+90421
+no ety
+90522
+no ety
+90567
+no ety
+90674
+no ety
+90721
+no ety
+90852
+no ety
+90879
+no ety
+90966
+no ety
+90937
+no ety
+91012
+no ety
+90128
+no ety
+90179
+no ety
+90262
+no ety
+90311
+no ety
+90404
+no ety
+90461
+no ety
+90510
+no ety
+90571
+no ety
+90626
+no ety
+90695
+no ety
+90756
+no ety
+90821
+no ety
+90864
+no ety
+90935
+no ety
+90961
+no ety
+91022
+no ety
+90162
+no ety
+90219
+no ety
+90286
+no ety
+90343
+no ety
+90396
+no ety
+90447
+no ety
+90504
+no ety
+90561
+no ety
+90569
+no ety
+90672
+no ety
+90737 L/SPL
+no ety
+90892
+no ety
+90945
+no ety
+91010
+no ety
+90010
+no ety
+90047
+no ety
+90088
+no ety
+90149
+no ety
+90210
+no ety
+90263
+no ety
+90308
+no ety
+90363
+no ety
+90430
+no ety
+90487
+no ety
+90582
+no ety
+90631
+no ety
+90750
+no ety
+90791
+no ety
+92001
+no ety
+92012
+no ety
+92029
+no ety
+92046
+no ety
+92069
+no ety
+92088
+no ety
+92093
+no ety
+92112
+no ety
+92117
+no ety
+92132
+no ety
+92133
+no ety
+92152
+no ety
+92159
+no ety
+92182
+no ety
+92183
+no ety
+92192
+no ety
+92203
+no ety
+94001
+no ety
+94008
+no ety
+94013
+no ety
+94018
+no ety
+94023
+no ety
+94038
+no ety
+94043
+no ety
+94056
+no ety
+94063
+no ety
+94078
+no ety
+94081
+no ety
+94094
+no ety
+94095
+no ety
+94106
+no ety
+94105
+no ety
+90007
+no ety
+90106
+no ety
+90135
+no ety
+90266
+no ety
+90303
+no ety
+90380
+no ety
+90437
+no ety
+90492
+no ety
+90551
+no ety
+90612
+no ety
+90677
+no ety
+90760
+no ety
+90823
+no ety
+90898
+no ety
+90963
+no ety
+90013
+no ety
+90102
+no ety
+90131
+no ety
+90188
+no ety
+90241
+no ety
+90332
+no ety
+90393
+no ety
+90446
+no ety
+90505
+no ety
+90564
+no ety
+90615
+no ety
+90734
+no ety
+90779
+no ety
+90910
+no ety
+90959
+no ety
+91016
+no ety
+91035
+no ety
+90043
+no ety
+90146
+no ety
+90181
+no ety
+90250
+no ety
+90283
+no ety
+90358
+no ety
+90403
+no ety
+90732
+no ety
+90873
+no ety
+90968
+no ety
+91025
+no ety
+90192
+no ety
+90233
+no ety
+90382
+no ety
+90399
+no ety
+90486
+no ety
+90503
+no ety
+90608
+no ety
+90616
+no ety
+90681
+no ety
+90764
+no ety
+90829/L.SPL
+no ety
+90220
+no ety
+90255
+no ety
+90320
+no ety
+90381
+no ety
+90444
+no ety
+90499
+no ety
+90554
+no ety
+90613
+no ety
+90676
+no ety
+90743
+no ety
+90818
+no ety
+90877
+no ety
+90962
+no ety
+91017
+no ety
+90044
+no ety
+90089
+no ety
+90156
+no ety
+90207
+no ety
+90360
+no ety
+90397
+no ety
+90468
+no ety
+90511
+no ety
+90630
+no ety
+90679
+no ety
+90812
+no ety
+90853
+no ety
+90904
+no ety
+90068
+no ety
+90121
+no ety
+90290
+no ety
+90323
+no ety
+90450
+no ety
+90501
+no ety
+90600
+no ety
+90655
+no ety
+90780
+no ety
+90825
+no ety
+90874
+no ety
+90943
+no ety
+90132
+no ety
+90183
+no ety
+90185
+no ety
+90342
+no ety
+90379
+no ety
+90436
+no ety
+90485
+no ety
+90568
+no ety
+90553
+no ety
+90644
+no ety
+90693
+no ety
+90758
+no ety
+90795
+no ety
+90846
+no ety
+90921
+no ety
+90964
+no ety
+91027
+no ety
+90002
+no ety
+90031
+no ety
+90090
+no ety
+90151
+no ety
+90248
+no ety
+90299
+no ety
+90372
+no ety
+90423
+no ety
+90480
+no ety
+90535
+no ety
+90594
+no ety
+90647
+no ety
+90714
+no ety
+90781
+no ety
+90834
+no ety
+90909
+no ety
+90946
+no ety
+90052
+no ety
+90097
+no ety
+90117
+no ety
+90242
+no ety
+90275
+no ety
+90412
+no ety
+90453
+no ety
+90508
+no ety
+90565
+no ety
+90610
+no ety
+90675
+no ety
+90708
+no ety
+90775
+no ety
+90848
+no ety
+90923
+no ety
+92003
+no ety
+92014
+no ety
+92011
+no ety
+92026
+no ety
+92031
+no ety
+92048
+no ety
+92045
+no ety
+92060
+no ety
+92083
+no ety
+92100
+no ety
+92109
+no ety
+92124
+no ety
+92139
+no ety
+92156
+no ety
+92157
+no ety
+92176
+no ety
+92185
+no ety
+92196
+no ety
+92199
+no ety
+92206
+no ety
+92005
+no ety
+92016
+no ety
+92015
+no ety
+92032
+no ety
+92035
+no ety
+92056
+no ety
+92073
+no ety
+92090
+no ety
+92097
+no ety
+92116
+no ety
+92121
+no ety
+92138
+no ety
+92141
+no ety
+92166
+no ety
+92171
+no ety
+92186
+no ety
+92197
+no ety
+92204
+no ety
+92209
+no ety
+92025
+no ety
+92044
+no ety
+92053
+no ety
+92076
+no ety
+92077
+no ety
+92094
+no ety
+92087
+no ety
+92106
+no ety
+92119
+no ety
+92136
+no ety
+92147
+no ety
+92162
+no ety
+92169
+no ety
+90001
+no ety
+90036
+no ety
+90079
+no ety
+90148
+no ety
+90193
+no ety
+90258
+no ety
+90309
+no ety
+90384
+no ety
+90441
+no ety
+90494
+no ety
+90543
+no ety
+90602
+no ety
+90671
+no ety
+90746
+no ety
+90813
+no ety
+90886
+no ety
+90955
+no ety
+90017
+no ety
+90064
+no ety
+90115
+no ety
+90180
+no ety
+90235
+no ety
+90284
+no ety
+90341
+no ety
+90424
+no ety
+90481
+no ety
+90538
+no ety
+90599
+no ety
+90748
+no ety
+90787
+no ety
+90856
+no ety
+90931
+no ety
+90974
+no ety
+91033
+no ety
+90027
+no ety
+90080
+no ety
+90133
+no ety
+90176
+no ety
+90229
+no ety
+90328
+no ety
+90365
+no ety
+90478
+no ety
+90523
+no ety
+90624
+no ety
+90667
+no ety
+93033
+no ety
+93038
+no ety
+90971
+no ety
+90990
+no ety
+91045
+no ety
+90039
+no ety
+90110
+no ety
+90161
+no ety
+90324
+no ety
+90361
+no ety
+90664
+no ety
+90717
+no ety
+90788
+no ety
+90857
+no ety
+90061
+no ety
+90067
+no ety
+90200
+no ety
+90257
+no ety
+90352
+no ety
+90411
+no ety
+90462
+no ety
+90521
+no ety
+90574
+no ety
+90623
+no ety
+90686
+no ety
+90755
+no ety
+90830
+no ety
+90907
+no ety
+90956
+no ety
+91019
+no ety
+90141
+no ety
+90230
+no ety
+90271
+no ety
+90344
+no ety
+90387
+no ety
+90432
+no ety
+90491
+no ety
+90534
+no ety
+90595
+no ety
+90650
+no ety
+90715
+no ety
+90740
+no ety
+90803
+no ety
+90860
+no ety
+90927
+no ety
+91000
+no ety
+90221
+no ety
+90312
+no ety
+90371
+no ety
+90418
+no ety
+90473
+no ety
+90524
+no ety
+90587
+no ety
+90642
+no ety
+90711
+no ety
+90752
+no ety
+90817
+no ety
+90831
+no ety
+90950
+no ety
+91009
+no ety
+91047
+no ety
+90037
+no ety
+90100
+no ety
+90155
+no ety
+90170
+no ety
+90225
+no ety
+90316
+no ety
+90373
+no ety
+90438
+no ety
+90493
+no ety
+90550
+no ety
+90609
+no ety
+90670
+no ety
+90725
+no ety
+90806
+no ety
+90859
+no ety
+90912
+no ety
+90981
+no ety
+94003
+no ety
+94010
+no ety
+94015
+no ety
+94028
+no ety
+94033
+no ety
+94044
+no ety
+94049
+no ety
+94060
+no ety
+94057
+no ety
+94072
+no ety
+94077
+no ety
+94090
+no ety
+94093
+no ety
+90057
+no ety
+90124
+no ety
+90173
+no ety
+90246
+no ety
+90297
+no ety
+90390
+no ety
+90445
+no ety
+90496
+no ety
+90555
+no ety
+90592
+no ety
+90653
+no ety
+90684
+no ety
+90751
+no ety
+90762
+no ety
+90827
+no ety
+90069
+no ety
+90140
+no ety
+90191
+no ety
+90232
+no ety
+90285
+no ety
+90376
+no ety
+90431
+no ety
+90474
+no ety
+90531
+no ety
+90586
+no ety
+90651
+no ety
+90694
+no ety
+90763
+no ety
+90838
+no ety
+90913
+no ety
+91002
+no ety
+90085
+no ety
+90138
+no ety
+90187
+no ety
+90268
+no ety
+90321
+no ety
+90414
+no ety
+90471
+no ety
+90520
+no ety
+90583
+no ety
+90640
+no ety
+90709
+no ety
+90772
+no ety
+90835
+no ety
+90880
+no ety
+90949
+no ety
+90982
+no ety
+91041
+no ety
+90095
+no ety
+90168
+no ety
+90213
+no ety
+90364
+no ety
+90405
+no ety
+90500
+no ety
+90537
+no ety
+90628
+no ety
+90887
+no ety
+90926
+no ety
+90979
+no ety
+90996
+no ety
+91043
+no ety
+94011
+no ety
+94024
+no ety
+94029
+no ety
+94040
+no ety
+94047
+no ety
+94052
+no ety
+94059
+no ety
+94066
+no ety
+94073
+no ety
+94080
+no ety
+94083
+no ety
+94098
+no ety
+94101
+no ety
+90145
+no ety
+90236
+no ety
+90289
+no ety
+90366
+no ety
+90417
+no ety
+90452
+no ety
+90507
+no ety
+90570
+no ety
+90627
+no ety
+90692
+no ety
+90759
+no ety
+90836
+no ety
+90911
+no ety
+90011
+no ety
+90122
+no ety
+93011
+no ety
+93016
+no ety
+93023
+no ety
+93028
+no ety
+93035
+no ety
+93040
+no ety
+90970
+no ety
+91021
+no ety
+90015
+no ety
+90060
+no ety
+90111
+no ety
+90194
+no ety
+90251
+no ety
+90340
+no ety
+90401
+no ety
+90456
+no ety
+90513
+no ety
+90576
+no ety
+90635
+no ety
+90702
+no ety
+90771
+no ety
+90773
+no ety
+90842
+no ety
+90917
+no ety
+90958
+no ety
+91023
+no ety
+90019
+no ety
+90076
+no ety
+90125
+no ety
+90212
+no ety
+90265
+no ety
+90362
+no ety
+90413
+no ety
+90466
+no ety
+90525
+no ety
+90578
+no ety
+90641
+no ety
+90710
+no ety
+90765
+no ety
+90822
+no ety
+90897
+no ety
+90992
+no ety
+91037
+no ety
+90021
+no ety
+90130
+no ety
+90167
+no ety
+90310
+no ety
+90347
+no ety
+90416
+no ety
+90463
+no ety
+90560
+no ety
+90573
+no ety
+90716
+no ety
+90761
+no ety
+90820
+no ety
+90869
+no ety
+90025
+no ety
+90078
+no ety
+90129
+no ety
+90214
+no ety
+90269
+no ety
+90338
+no ety
+90395
+no ety
+90029
+no ety
+90082
+no ety
+90139
+no ety
+90226
+no ety
+90281
+no ety
+90374
+no ety
+90427
+no ety
+90482
+no ety
+90777 L.SPL
+no ety
+90924
+no ety
+90973
+no ety
+91018
+no ety
+93005
+no ety
+93010
+no ety
+93017
+no ety
+93022
+no ety
+90579
+no ety
+90622
+no ety
+90699
+no ety
+90778
+no ety
+90837
+no ety
+90944
+no ety
+91001
+no ety
+91014
 
 12 service IDs from summary sheet not found in detailed WTT:
  ** Link AL: Service 90234
@@ -9244,8 +11840,114 @@ Summary sheet rows: 476
  ** Link AY: Service 90854
  ** Link BQ: Service 90117
  ** Link CI: Service 90095
+Updating suburban
+dict_keys([93002, 93009, 93014, 90428, 90497, 90546, 90607, 90666, 90731, 90814, 90889, 90936, 91003])
+dict_keys([93004, 90247, 91392, 91393, 91394, 91395, 91396, 91491, 90948, 91011, 91020])
+dict_keys([90006, 90165, 90202, 90259, 90326, 90385, 90442, 90495, 90552, 90611, 90656, 90719, 90862, 90919])
+dict_keys([90018, 90041, 90158, 90197, 90288, 90349, 90448, 90469, 90572, 90617, 90660, 90723, 90786, 90855, 90867])
+dict_keys([90028, 90030, 90071, 90142, 90199, 90264, 90315, 90408, 90465, 90514, 90577, 90638, 90705, 90782, 90849, 90916, 90989])
+dict_keys([90038, 93007, 93012, 93021, 93026, 90657, 90728, 90793, 90866, 90939, 90978, 'ETY 15'])
+dict_keys([93001, 93006, 93013, 93018, 93025, 93030, 93037, 93042])
+dict_keys([92004, 92021, 92036, 92039, 92050, 92057, 92078, 92099, 92114, 92131, 92148, 92151, 92170, 92177, 92188, 92195, 92202])
+dict_keys([90070, 90109, 90172, 90227, 90272, 90325, 90378, 90433, 90490, 90549, 90606, 90673, 90736, 90799, 90828, 90901, 90952, 91015])
+dict_keys([90084, 90086, 90147, 90280, 90337, 90619, 90766, 90701, 90844, 90903, 90984])
+dict_keys([93003, 93008, 93019, 93024, 93029, 93034, 93041])
+dict_keys([94016, 94021, 94034, 94039, 94050, 94055, 94068, 94075, 94082, 94089, 94100, 'ETY 7'])
+dict_keys([90012, 90014, 90053, 90182, 90217, 90350, 90409, 90460, 90517, 90566, 90625, 90680, 90745, 90826, 90899])
+dict_keys([94002, 94004, 94005, 94012, 94017, 94030, 94035, 94046, 94051, 94064, 94071, 94086, 94091, 94102, 'ETY 9'])
+dict_keys([90046, 90083, 90190, 90195, 90322, 90355, 90470, 90519, 90614, 90669, 90726, 90789, 90794, 90863, 90922, 90991])
+dict_keys([94006, 94009, 94014, 94019, 94026, 94031, 94036, 94041, 94054, 94061, 94074, 94076, 94079, 94092, 94097, 94104, 94103])
+dict_keys([92006, 92013, 92028, 92037, 92062, 92059, 92072, 92091, 92104, 92115, 92134, 92137, 92154, 92165, 92180, 92189, 92194, 92205, 92208])
+dict_keys([92022, 92033, 92052, 92055, 92074, 92081, 92098, 92101, 92118, 92123, 92140, 92145, 92164, 92179])
+dict_keys([92002, 92009, 92024, 92047, 92066, 92075, 92092, 92107, 92126, 92143, 92158, 92181])
+dict_keys([90054, 90091, 90216, 90240, 90291, 90386, 90425, 90506, 90547, 90658, 90645, 90792, 90843, 90896, 90951])
+dict_keys([92008, 92027, 92042, 92065, 92080, 92095, 92110, 92113, 92128, 92127, 92144, 92149, 92168, 92163, 92178, 92187, 92198, 92207])
+dict_keys([90074, 90113, 90252, 90287, 90422, 90727, 90808, 90881, 90918, 90987, 91008, 91055])
+dict_keys([92018, 92023, 92038, 92051, 92070, 92079, 92096, 92103, 92120, 92129, 92146, 92155, 92174, 92193, 92200])
+dict_keys([92030, 92049, 92068, 92063, 92082, 92089, 92108, 92125, 92142, 92153, 92172, 92173])
+dict_keys([90206, 90245, 90300, 90339, 90654, 90707, 90774, 90839])
+dict_keys([92058, 92071, 92160, 92167, 92184, 92191])
+dict_keys([92010, 92019, 92040, 92041, 92054, 92067, 92086, 92105, 92122, 92135, 92150, 92161])
+dict_keys([90020, 90049, 90164, 90201, 90356, 90391, 90690, 90739, 90868, 90865, 90960, 90985])
+dict_keys([90034, 90055, 90174, 90211, 90278, 90317, 90319, 90454, 90457, 90536, 93031, 93036, 90933, 91006, 91053])
+dict_keys([90042, 90073, 90196, 90239, 90304, 90345, 90458, 90509, 90556, 90601, 90730, 90741, 90802, 90851, 90954])
+dict_keys([90050, 90171, 90238, 90279, 90330, 90389, 90689, 90770, 90833, 90900, 90967])
+dict_keys([90058, 90107, 90160, 90215, 90306, 90359])
+dict_keys([90062, 90105, 90244, 90293, 90348, 90407, 90512, 90559, 90596, 90661, 90738, 90801, 90850, 90925, 90972, 91029])
+dict_keys([90072, 90123, 90260, 90295, 90370, 90415, 90768, 90815, 90870, 90941, 90980])
+dict_keys([90108, 90157, 90222, 90273, 90394, 90435, 90476, 90533, 90558, 90621, 90682, 90747, 90804, 90875, 90882, 90953])
+dict_keys([90186, 93015, 93020, 93027, 93032, 93039])
+dict_keys([90208, 90249, 90648, 90659, 90858, 90807, 90938, 90993])
+dict_keys([90668])
+dict_keys([90274, 90329, 90420, 90475, 90532, 90593, 90636, 90697, 90776, 90841, 90908, 90977, 91004, 91051])
+dict_keys([90003, 90098, 90127, 90270, 90307, 90634, 90687, 90754, 90819, 90934, 90983, 91024])
+dict_keys([90009, 90120, 90153, 90294, 90237, 90346, 90443, 90526, 90589, 90646, 90713, 90790, 90861, 90902, 90969])
+dict_keys([92007, 92020, 92017, 92034, 92043, 92064, 92061, 92084, 92085, 92102, 92111, 92130, 92175, 92190, 92201])
+dict_keys([90035, 90152, 90205, 90296, 90353, 90426, 90483, 90540, 90603, 90662, 90729, 90872, 90905, 90942, 91007])
+dict_keys([94007, 94020, 94025, 94032, 94037, 94048, 94053, 94062, 94067, 94084, 94085, 94096, 94099])
+dict_keys([90004, 90033, 90150, 90189, 90334, 90375, 90484, 90539, 90598, 90663, 90742, 90809, 90878, 90947, 90957])
+dict_keys([90008, 90045, 90112, 90163, 90254, 90301, 90398, 90449, 90562, 90605, 90688, 90735, 90796, 90871, 90930, 90997])
+dict_keys([90016, 90051, 90116, 90169, 90256, 90305, 90402, 90459, 90502, 90557, 90620, 90685, 90840, 90895, 90928, 90995])
+dict_keys([90022, 90059, 90126, 90175, 90224, 90277, 90368, 90419, 90472, 90527, 90580, 90649, 90718, 90783, 90816, 90891, 90940, 91005])
+dict_keys([90032, 90077, 90144, 90203, 90292, 90351, 90410, 90467, 90516, 90581, 90618, 90845, 90894, 90965, 90998, 91049])
+dict_keys([90040, 90087, 90154, 90209, 90276, 90333, 90704, 90753, 90810, 90885, 90932, 90999])
+dict_keys([90048, 90093, 90166, 90223, 90282, 90313, 90440, 90491, 90588, 90637, 90720, 90769, 90915])
+dict_keys([90056, 90101, 90178, 90231, 90302, 90357, 90369, 90498, 90541, 90652, 90703, 90832, 90893, 90976, 91031])
+dict_keys([90066, 90119, 90198, 90253, 90318, 90377, 90633, 90700, 90767, 90884, 90883])
+dict_keys([90104, 90143, 90204, 90243, 90388, 90421, 90522, 90567, 90674, 90721, 90852, 90879, 90966, 90937, 91012])
+dict_keys([90128, 90179, 90262, 90311, 90404, 90461, 90510, 90571, 90626, 90695, 90756, 90821, 90864, 90935, 90961, 91022])
+dict_keys([90162, 90219, 90286, 90343, 90396, 90447, 90504, 90561, 90569, 90672, 90737, 90892, 90945, 91010])
+dict_keys([90010, 90047, 90088, 90149, 90210, 90263, 90308, 90363, 90430, 90487, 90582, 90631, 90750, 90791])
+dict_keys([92001, 92012, 92029, 92046, 92069, 92088, 92093, 92112, 92117, 92132, 92133, 92152, 92159, 92182, 92183, 92192, 92203])
+dict_keys([94001, 94008, 94013, 94018, 94023, 94038, 94043, 94056, 94063, 94078, 94081, 94094, 94095, 94106, 94105])
+dict_keys([90007, 90106, 90135, 90266, 90303, 90380, 90437, 90492, 90551, 90612, 90677, 90760, 90823, 90898, 90963])
+dict_keys([90013, 90102, 90131, 90188, 90241, 90332, 90393, 90446, 90505, 90564, 90615, 90734, 90779, 90910, 90959, 91016, 91035])
+dict_keys([90043, 90146, 90181, 90250, 90283, 90358, 90403, 90732, 90873, 90968, 91025])
+dict_keys([90192, 90233, 90382, 90399, 90486, 90503, 90608, 90616, 90681, 90764, 90829])
+dict_keys([90220, 90255, 90320, 90381, 90444, 90499, 90554, 90613, 90676, 90743, 90818, 90877, 90962, 91017])
+dict_keys([90044, 90089, 90156, 90207, 90360, 90397, 90468, 90511, 90630, 90679, 90812, 90853, 90904, 'ETY 5'])
+dict_keys([90068, 90121, 90290, 90323, 90450, 90501, 90600, 90655, 90780, 90825, 90874, 90943])
+dict_keys([90132, 90183, 90185, 90342, 90379, 90436, 90485, 90568, 90553, 90644, 90693, 90758, 90795, 90846, 90921, 90964, 91027])
+dict_keys([90002, 90031, 90090, 90151, 90248, 90299, 90372, 90423, 90480, 90535, 90594, 90647, 90714, 90781, 90834, 90909, 90946, 'ETY 11'])
+dict_keys([90052, 90097, 90242, 90275, 90412, 90453, 90508, 90565, 90610, 90675, 90708, 90775, 90848, 90923])
+dict_keys([92003, 92014, 92011, 92026, 92031, 92048, 92045, 92060, 92083, 92100, 92109, 92124, 92139, 92156, 92157, 92176, 92185, 92196, 92199, 92206])
+dict_keys([92005, 92016, 92015, 92032, 92035, 92056, 92073, 92090, 92097, 92116, 92121, 92138, 92141, 92166, 92171, 92186, 92197, 92204, 92209])
+dict_keys([92025, 92044, 92053, 92076, 92077, 92094, 92087, 92106, 92119, 92136, 92147, 92162, 92169])
+dict_keys([90001, 90036, 90079, 90148, 90193, 90258, 90309, 90384, 90441, 90494, 90543, 90602, 90671, 90746, 90813, 90886, 90955])
+dict_keys([90017, 90064, 90115, 90180, 90235, 90284, 90341, 90424, 90481, 90538, 90599, 90748, 90787, 90856, 90931, 90974, 91033])
+dict_keys([90027, 90080, 90133, 90176, 90229, 90328, 90365, 90478, 90523, 90624, 90667, 93033, 93038, 90971, 90990, 91045])
+dict_keys([90039, 90110, 90161, 90324, 90361, 90664, 90717, 90788, 90857])
+dict_keys([90061, 90067, 90200, 90257, 90352, 90411, 90462, 90521, 90574, 90623, 90686, 90755, 90830, 90907, 90956, 91019])
+dict_keys([90141, 90230, 90271, 90344, 90387, 90432, 90491, 90534, 90595, 90650, 90715, 90740, 90803, 90860, 90927, 91000, 'ETY 17'])
+dict_keys([90221, 90312, 90371, 90418, 90473, 90524, 90587, 90642, 90711, 90752, 90817, 90831, 90950, 91009])
+dict_keys(['ETY 2', 91047])
+dict_keys([90037, 90100, 90155, 90170, 90225, 90316, 90373, 90438, 90493, 90550, 90609, 90670, 90725, 90806, 90859, 90912, 90981])
+dict_keys([94003, 94010, 94015, 94028, 94033, 94044, 94049, 94060, 94057, 94072, 94077, 94090, 94093])
+dict_keys([90057, 90124, 90173, 90246, 90297, 90390, 90445, 90496, 90555, 90592, 90653, 90684, 90751, 90762, 90827])
+dict_keys([90069, 90140, 90191, 90232, 90285, 90376, 90431, 90474, 90531, 90586, 90651, 90694, 90763, 90838, 90913, 91002])
+dict_keys([90085, 90138, 90187, 90268, 90321, 90414, 90471, 90520, 90583, 90640, 90709, 90772, 90835, 90880, 90949, 90982, 91041])
+dict_keys([90168, 90213, 90364, 90405, 90500, 90537, 90628, 90887, 90926, 90979, 90996, 91043])
+dict_keys([94011, 94024, 94029, 94040, 94047, 94052, 94059, 94066, 94073, 94080, 94083, 94098, 94101])
+dict_keys([90145, 90236, 90289, 90366, 90417, 90452, 90507, 90570, 90627, 90692, 90759, 90836, 90911])
+dict_keys([90011, 90122, 93011, 93016, 93023, 93028, 93035, 93040, 90970, 91021])
+dict_keys([90015, 90060, 90111, 90194, 90251, 90340, 90401, 90456, 90513, 90576, 90635, 90702, 90771, 90773, 90842, 90917, 90958, 91023])
+dict_keys([90019, 90076, 90125, 90212, 90265, 90362, 90413, 90466, 90525, 90578, 90641, 90710, 90765, 90822, 90897, 90992, 91037])
+dict_keys([90021, 90130, 90167, 90310, 90347, 90416, 90463, 90560, 90573, 90716, 90761, 90820, 90869])
+dict_keys([90025, 90078, 90129, 90214, 90269, 90338, 90395, 'ETY 6', 'ETY 13'])
+dict_keys([90029, 90082, 90139, 90226, 90281, 90374, 90427, 90482, 90777, 90924, 90973, 91018])
+dict_keys([93005, 93010, 93017, 93022, 90579, 90622, 90699, 90778, 90837, 90944, 91001, 91014])
+{90491}
 
-Suburban services identified: 1280 / 1698
+Suburban services identified: 1295 / 1698
+<Service ETY 11 (DOWN, NA, NON-AC, 12-CAR) CHURCHGATE->M'BAI CENTRAL(L) linked:None>
+<Service ETY 13 (DOWN, NA, NON-AC, 12-CAR) CHURCHGATE->M'BAI CENTRAL(L) linked:None>
+<Service ETY 15 (DOWN, NA, NON-AC, 12-CAR) CHURCHGATE->M'BAI CENTRAL(L) linked:None>
+<Service ETY 17 (DOWN, NA, NON-AC, 12-CAR) CHURCHGATE->M'BAI CENTRAL(L) linked:None>
+<Service ETY 2 (UP, NA, NON-AC, 12-CAR) MAHALAKSHMI->CHURCHGATE linked:91047>
+<Service ETY 5 (DOWN, NA, NON-AC, 12-CAR) CHURCHGATE->M'BAI CENTRAL(L) linked:None>
+<Service ETY 6 (UP, NA, NON-AC, 12-CAR) M'BAI CENTRAL(L)->CHURCHGATE linked:None>
+<Service ETY 7 (DOWN, NA, AC, 12-CAR) CHURCHGATE->M'BAI CENTRAL(L) linked:None>
+<Service ETY 9 (DOWN, NA, AC, 12-CAR) CHURCHGATE->M'BAI CENTRAL(L) linked:None>
 <Service 90001 (DOWN, SUBURBAN, NON-AC, 12-CAR) BANDRA->VIRAR linked:90036>
 <Service 90002 (UP, SUBURBAN, NON-AC, 12-CAR) ANDHERI->CHURCHGATE linked:90031>
 <Service 90003 (DOWN, SUBURBAN, NON-AC, 12-CAR) BHAYANDAR->VIRAR linked:90098>
@@ -9491,6 +12193,7 @@ Suburban services identified: 1280 / 1698
 <Service 90271 (DOWN, SUBURBAN, NON-AC, 12-CAR) CHURCHGATE->VIRAR linked:90344>
 <Service 90272 (UP, SUBURBAN, NON-AC, 12-CAR) ANDHERI->CHURCHGATE linked:90325>
 <Service 90273 (DOWN, SUBURBAN, NON-AC, 12-CAR) CHURCHGATE->VIRAR linked:90394>
+<Service 90274 (UP, SUBURBAN, NON-AC, 12-CAR) BHAYANDAR->CHURCHGATE linked:90329>
 <Service 90275 (DOWN, SUBURBAN, NON-AC, 12-CAR) CHURCHGATE->VIRAR linked:90412>
 <Service 90276 (UP, SUBURBAN, NON-AC, 12-CAR) GOREGAON->CHURCHGATE linked:90333>
 <Service 90277 (DOWN, SUBURBAN, NON-AC, 12-CAR) CHURCHGATE->VIRAR linked:90368>
@@ -9568,7 +12271,7 @@ Suburban services identified: 1280 / 1698
 <Service 90356 (UP, SUBURBAN, NON-AC, 12-CAR) VIRAR->CHURCHGATE linked:90391>
 <Service 90357 (DOWN, SUBURBAN, NON-AC, 12-CAR) CHURCHGATE->VIRAR linked:90369>
 <Service 90358 (UP, SUBURBAN, NON-AC, 12-CAR) BORIVALI->CHURCHGATE linked:90403>
-<Service 90359 (DOWN, SUBURBAN, NON-AC, 12-CAR) CHURCHGATE->CHURCHGATE linked:None>
+<Service 90359 (DOWN, SUBURBAN, NON-AC, 12-CAR) CHURCHGATE->M'BAI CENTRAL(L) linked:None>
 <Service 90360 (UP, SUBURBAN, NON-AC, 12-CAR) VIRAR->CHURCHGATE linked:90397>
 <Service 90361 (DOWN, SUBURBAN, NON-AC, 12-CAR) CHURCHGATE->VIRAR linked:90664>
 <Service 90362 (UP, SUBURBAN, NON-AC, 12-CAR) BORIVALI->CHURCHGATE linked:90413>
@@ -9872,6 +12575,7 @@ Suburban services identified: 1280 / 1698
 <Service 90702 (UP, SUBURBAN, NON-AC, 12-CAR) BORIVALI->CHURCHGATE linked:90771>
 <Service 90703 (DOWN, SUBURBAN, NON-AC, 12-CAR) CHURCHGATE->VIRAR linked:90832>
 <Service 90704 (UP, SUBURBAN, NON-AC, 12-CAR) NALLASOPARA->CHURCHGATE linked:90753>
+<Service 90705 (DOWN, SUBURBAN, NON-AC, 12-CAR) CHURCHGATE->VIRAR linked:90782>
 <Service 90707 (DOWN, SUBURBAN, NON-AC, 12-CAR) CHURCHGATE->VIRAR linked:90774>
 <Service 90708 (UP, SUBURBAN, NON-AC, 12-CAR) ANDHERI->CHURCHGATE linked:90775>
 <Service 90709 (DOWN, SUBURBAN, NON-AC, 12-CAR) CHURCHGATE->VIRAR linked:90772>
@@ -9898,6 +12602,7 @@ Suburban services identified: 1280 / 1698
 <Service 90734 (UP, SUBURBAN, NON-AC, 12-CAR) VIRAR->CHURCHGATE linked:90779>
 <Service 90735 (DOWN, SUBURBAN, NON-AC, 12-CAR) CHURCHGATE->VIRAR linked:90796>
 <Service 90736 (UP, SUBURBAN, NON-AC, 12-CAR) GOREGAON->CHURCHGATE linked:90799>
+<Service 90737 (DOWN, SUBURBAN, NON-AC, 12-CAR) CHURCHGATE->VIRAR linked:90892>
 <Service 90738 (UP, SUBURBAN, NON-AC, 12-CAR) BORIVALI->CHURCHGATE linked:90801>
 <Service 90739 (DOWN, SUBURBAN, NON-AC, 12-CAR) CHURCHGATE->VIRAR linked:90868>
 <Service 90740 (UP, SUBURBAN, NON-AC, 12-CAR) BANDRA->CHURCHGATE linked:90803>
@@ -9934,6 +12639,7 @@ Suburban services identified: 1280 / 1698
 <Service 90774 (UP, SUBURBAN, NON-AC, 12-CAR) BORIVALI->CHURCHGATE linked:90839>
 <Service 90775 (DOWN, SUBURBAN, NON-AC, 12-CAR) CHURCHGATE->VIRAR linked:90848>
 <Service 90776 (UP, SUBURBAN, NON-AC, 12-CAR) BORIVALI->CHURCHGATE linked:90841>
+<Service 90777 (DOWN, SUBURBAN, NON-AC, 12-CAR) CHURCHGATE->VIRAR linked:90924>
 <Service 90778 (UP, SUBURBAN, NON-AC, 12-CAR) BORIVALI->CHURCHGATE linked:90837>
 <Service 90779 (DOWN, SUBURBAN, NON-AC, 12-CAR) CHURCHGATE->VIRAR linked:90910>
 <Service 90780 (UP, SUBURBAN, NON-AC, 12-CAR) VIRAR->CHURCHGATE linked:90825>
@@ -9977,6 +12683,7 @@ Suburban services identified: 1280 / 1698
 <Service 90826 (UP, SUBURBAN, NON-AC, 12-CAR) BORIVALI->CHURCHGATE linked:90899>
 <Service 90827 (DOWN, SUBURBAN, NON-AC, 12-CAR) CHURCHGATE->ANDHERI linked:None>
 <Service 90828 (UP, SUBURBAN, NON-AC, 12-CAR) ANDHERI->CHURCHGATE linked:90901>
+<Service 90829 (DOWN, SUBURBAN, NON-AC, 12-CAR) CHURCHGATE->VIRAR linked:None>
 <Service 90830 (UP, SUBURBAN, NON-AC, 12-CAR) BORIVALI->CHURCHGATE linked:90907>
 <Service 90831 (DOWN, SUBURBAN, NON-AC, 12-CAR) BANDRA->VIRAR linked:90950>
 <Service 90832 (UP, SUBURBAN, NON-AC, 12-CAR) VIRAR->CHURCHGATE linked:90893>
@@ -10052,7 +12759,7 @@ Suburban services identified: 1280 / 1698
 <Service 90908 (UP, SUBURBAN, NON-AC, 12-CAR) BORIVALI->CHURCHGATE linked:90981>
 <Service 90909 (DOWN, SUBURBAN, NON-AC, 12-CAR) CHURCHGATE->VIRAR linked:90946>
 <Service 90910 (UP, SUBURBAN, NON-AC, 12-CAR) VIRAR->CHURCHGATE linked:90959>
-<Service 90911 (DOWN, SUBURBAN, NON-AC, 12-CAR) CHURCHGATE->CHURCHGATE linked:None>
+<Service 90911 (DOWN, SUBURBAN, NON-AC, 12-CAR) CHURCHGATE->M'BAI CENTRAL(L) linked:None>
 <Service 90912 (UP, SUBURBAN, NON-AC, 12-CAR) BORIVALI->CHURCHGATE linked:91047>
 <Service 90913 (DOWN, SUBURBAN, NON-AC, 12-CAR) CHURCHGATE->VIRAR linked:91002>
 <Service 90915 (DOWN, SUBURBAN, NON-AC, 12-CAR) CHURCHGATE->ANDHERI linked:None>
@@ -10159,8 +12866,8 @@ Suburban services identified: 1280 / 1698
 <Service 91023 (DOWN, SUBURBAN, NON-AC, 12-CAR) CHURCHGATE->DADAR linked:None>
 <Service 91024 (UP, SUBURBAN, NON-AC, 12-CAR) VIRAR->CHURCHGATE linked:None>
 <Service 91025 (DOWN, SUBURBAN, NON-AC, 12-CAR) CHURCHGATE->DADAR linked:None>
-<Service 91027 (DOWN, SUBURBAN, NON-AC, 12-CAR) CHURCHGATE->CHURCHGATE linked:None>
-<Service 91029 (DOWN, SUBURBAN, NON-AC, 12-CAR) CHURCHGATE->CHURCHGATE linked:None>
+<Service 91027 (DOWN, SUBURBAN, NON-AC, 12-CAR) CHURCHGATE->M'BAI CENTRAL(L) linked:None>
+<Service 91029 (DOWN, SUBURBAN, NON-AC, 12-CAR) CHURCHGATE->M'BAI CENTRAL(L) linked:None>
 <Service 91031 (DOWN, SUBURBAN, NON-AC, 12-CAR) CHURCHGATE->CHURCHGATE linked:None>
 <Service 91033 (DOWN, SUBURBAN, NON-AC, 12-CAR) CHURCHGATE->CHURCHGATE linked:None>
 <Service 91035 (DOWN, SUBURBAN, NON-AC, 12-CAR) ANDHERI->BORIVALI linked:None>
@@ -10292,6 +12999,7 @@ Suburban services identified: 1280 / 1698
 <Service 92110 (UP, SUBURBAN, NON-AC, 15-CAR) VIRAR->CHURCHGATE linked:92113>
 <Service 92111 (DOWN, SUBURBAN, NON-AC, 15-CAR) DADAR->VIRAR linked:92130>
 <Service 92112 (UP, SUBURBAN, NON-AC, 15-CAR) VIRAR->CHURCHGATE linked:92117>
+<Service 92113 (DOWN, SUBURBAN, NON-AC, 15-CAR) ANDHERI->VIRAR linked:92128>
 <Service 92114 (UP, SUBURBAN, NON-AC, 15-CAR) VIRAR->CHURCHGATE linked:92131>
 <Service 92115 (DOWN, SUBURBAN, NON-AC, 15-CAR) ANDHERI->VIRAR linked:92134>
 <Service 92116 (UP, SUBURBAN, NON-AC, 15-CAR) VIRAR->CHURCHGATE linked:92121>
@@ -10526,7 +13234,9 @@ Suburban services identified: 1280 / 1698
 <Service 94104 (UP, SUBURBAN, AC, 12-CAR) BHAYANDAR->CHURCHGATE linked:94103>
 <Service 94105 (DOWN, SUBURBAN, AC, 12-CAR) ANDHERI->ANDHERI linked:None>
 <Service 94106 (UP, SUBURBAN, AC, 12-CAR) VIRAR->CHURCHGATE linked:94105>
-# rake links = 105
+Constructed 95 rake-cycle paths.
+# rake links = 95
+rakecycle starting with service ['ETY 2'] has length = 2
 rakecycle starting with service [90001] has length = 17
 rakecycle starting with service [90002] has length = 17
 rakecycle starting with service [90003] has length = 12
@@ -10549,12 +13259,12 @@ rakecycle starting with service [90021] has length = 13
 rakecycle starting with service [90022] has length = 18
 rakecycle starting with service [90025] has length = 7
 rakecycle starting with service [90027] has length = 16
-rakecycle starting with service [90028] has length = 12
-rakecycle starting with service [90029] has length = 8
+rakecycle starting with service [90028] has length = 17
+rakecycle starting with service [90029] has length = 12
 rakecycle starting with service [90032] has length = 16
 rakecycle starting with service [90034] has length = 15
 rakecycle starting with service [90035] has length = 15
-rakecycle starting with service [90037] has length = 17
+rakecycle starting with service [90037] has length = 16
 rakecycle starting with service [90038] has length = 11
 rakecycle starting with service [90039] has length = 9
 rakecycle starting with service [90040] has length = 12
@@ -10585,26 +13295,17 @@ rakecycle starting with service [90128] has length = 16
 rakecycle starting with service [90132] has length = 17
 rakecycle starting with service [90141] has length = 16
 rakecycle starting with service [90145] has length = 13
-rakecycle starting with service [90162] has length = 10
+rakecycle starting with service [90162] has length = 14
 rakecycle starting with service [90186] has length = 6
-rakecycle starting with service [90192] has length = 10
+rakecycle starting with service [90192] has length = 11
 rakecycle starting with service [90206] has length = 8
 rakecycle starting with service [90208] has length = 8
 rakecycle starting with service [90220] has length = 14
 rakecycle starting with service [90221] has length = 14
 rakecycle starting with service [90242] has length = 12
-rakecycle starting with service [90247] has length = 10
-rakecycle starting with service [90329] has length = 11
-rakecycle starting with service [90428] has length = 10
-rakecycle starting with service [90579] has length = 2
+rakecycle starting with service [90274] has length = 12
 rakecycle starting with service [90588] has length = 4
-rakecycle starting with service [90668] has length = 1
 rakecycle starting with service [90699] has length = 6
-rakecycle starting with service [90782] has length = 4
-rakecycle starting with service [90892] has length = 3
-rakecycle starting with service [90915] has length = 1
-rakecycle starting with service [90924] has length = 3
-rakecycle starting with service [91396] has length = 1
 rakecycle starting with service [92001] has length = 17
 rakecycle starting with service [92002] has length = 12
 rakecycle starting with service [92003] has length = 20
@@ -10612,19 +13313,17 @@ rakecycle starting with service [92004] has length = 17
 rakecycle starting with service [92005] has length = 19
 rakecycle starting with service [92006] has length = 19
 rakecycle starting with service [92007] has length = 27
-rakecycle starting with service [92008] has length = 7
+rakecycle starting with service [92008] has length = 14
 rakecycle starting with service [92018] has length = 15
 rakecycle starting with service [92022] has length = 14
 rakecycle starting with service [92025] has length = 13
 rakecycle starting with service [92030] has length = 12
 rakecycle starting with service [92058] has length = 10
-rakecycle starting with service [92127] has length = 5
-rakecycle starting with service [92128] has length = 1
 rakecycle starting with service [93001] has length = 8
-rakecycle starting with service [93002] has length = 3
+rakecycle starting with service [93002] has length = 13
 rakecycle starting with service [93003] has length = 7
-rakecycle starting with service [93004] has length = 1
-rakecycle starting with service [93005] has length = 4
+rakecycle starting with service [93004] has length = 11
+rakecycle starting with service [93005] has length = 6
 rakecycle starting with service [94001] has length = 15
 rakecycle starting with service [94002] has length = 14
 rakecycle starting with service [94003] has length = 13
