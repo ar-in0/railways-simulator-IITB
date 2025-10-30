@@ -9,6 +9,14 @@
 import pandas as pd
 import re
 from collections import defaultdict
+import logging
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='[%(levelname)s]: %(message)s'
+)
+logger = logging.getLogger(__name__)
+# logger.setLevel(logging.DEBUG)
 
 # to check column colour, need to create an authentication
 # with google sheets. Downloading the file strips colour information.
@@ -63,19 +71,40 @@ class TimeTable:
         adj = defaultdict(lambda: {'prev': None, 'next': None})
 
         # build directed links
+        # ensure every linked node knows its prev and next
+        # adj[sid] is a {prev, next} pair
         for sv in idMap.values():
             sid = sv.serviceId[0]
-            if not sv.linkedTo:
+            # if its a terminal serviceId, say s
+            # adj[s]['prev'] will be stored, because that node
+            # will have had a linkedTo s (and therefore processed).
+            # ---
+            # ServiceIds that are independent (i.e. not part of a 
+            # rake cycle, will be ignored. A rake cycle is a series
+            # of 2 or more services.)
+            if not sv.linkedTo: 
                 continue
             try:
                 nextId = int(str(sv.linkedTo).strip())
             except ValueError:
                 nextId = str(sv.linkedTo).strip()
 
+            # if this service is linked to 
+            # a non-suburban service, we do
+            # not count it as a rake cycle.
             if nextId not in idMap:
                 continue
-
-            adj[sid]['next'] = nextId
+            
+            # adj[sid]['prev'] is some id <A>
+            # ----
+            # when we have `sid` = A
+            # adj[A]['next'] = sid, nextId = sid
+            # adj[nextId] = adj[sid], ==>
+            # adj[sid]['prev'] = A, as expected.
+            #
+            # In this way, prev and next for every linked serviceID
+            # is stored in the adjacency list.
+            adj[sid]['next'] = nextId  
             adj[nextId]['prev'] = sid
 
         visited = set()
@@ -89,6 +118,23 @@ class TimeTable:
             if nxt:
                 followChain(nxt, chain)
 
+        # We need to find chains - i.e. 
+        # series of services that have no prev node
+        # in the adjacency list.
+        # skip sids until it reaches one that is an init
+        #
+        # BUG: 92010 is being detected as an intermediate node
+        # since it is the linkedTo of service 92201, part of AP
+        # But it is also the start of AA. 
+        # The summary sheet says AP must end with 92201, but the wtt
+        # says that 92201 is linked To 92010, causing an issue.
+        # FIX: Use the summary sheet as source of truth for rake-cycle
+        # plotting, but document the discrepancies with the WTT.
+        # -- If a serviceID is both a linkedTo, and also a starting serviceID
+        # from the summary, reconstruct its path from the summary.
+        # -- If a serviceID of the rc.serviceIDs doesnt exist in the
+        # allservices, that entire rake cycle is invalid. 
+        # -- 
         for sid in idMap:
             if sid in visited:
                 continue
@@ -96,13 +142,52 @@ class TimeTable:
                 continue  # not a starting node
             if adj[sid]['next'] is None:
                 continue  # isolated or terminal only
-
+            
+            # sid is a starting node.
+            # now we follow its links
             chain = []
             followChain(sid, chain)
             if chain:
+                # print(chain[0])
                 self.allCyclesWtt.append(chain)
 
         print(f"Constructed {len(self.allCyclesWtt)} rake-cycle paths.")
+        for path in self.allCyclesWtt:
+            print(path[0])
+    
+    # rc: rake cycle
+    def fixPath(self, rc):
+        linkName = rc.linkName
+        logger.info(f"Fixing serviceID path for rakecycle {linkName}")
+        sid = rc.serviceIds[0]
+        print(sid)
+
+        if rc.unmatchedIds:
+            logger.debug(f"Services {rc.unmatchedIds} not defined in the WTT. Discarding the link.")
+            rc.status = RakeLinkStatus.INVALID
+            return 
+
+        # is the first service of the wtt rakelink even defined?
+        # Sids has every defined serviceID only. see generaterakecycles.
+        # undefined by mentioned in syummary are ignored.
+        # "For a given rc in the set of rakecycles created on the set of defined services, 
+        # are there any services that are not defined"
+        allServices = {str(s.serviceId[0]): s for s in self.suburbanServices}
+        s = allServices.get(str(sid)) 
+        assert(s) # due to the suburbanservices creation step earlier
+
+        if any(str(sid) == str(sv.linkedTo) for sv in allServices.values()):
+            logger.debug(f"Service {sid} appears as a linkedTo of another service in WTT. Possible mislink in rakecycle {linkName}.")
+            logger.info("Treat summary as source of truth. Reconstruct path using the serviceIds in the summary")
+            path = []
+            # print(rc.serviceIds)
+            for id in rc.serviceIds:
+                # print(f"aha {id}")
+                svc = allServices.get(str(id)) 
+                assert(svc)
+                path.append(svc)
+            # logger.debug(path)
+            return path
 
     # creates stationEvents
     def generateRakeCycles(self):
@@ -120,22 +205,42 @@ class TimeTable:
 
         for path in self.allCyclesWtt:
             print(f"rakecycle starting with service {path[0].serviceId} has length = {len(path)}")
+            sidpath = [s.serviceId[0] for s in path]
+            print(sidpath)
 
         # need to link the paths to the rake linkNames
         # wtt.rakeclcyes rc contain the linkname
         # and servicepath. Assign a path in allcycles to
         # rc.servicePath
         # rc.serviceIds contains the service path. [sids]
+        print("linking rake to path")
         for rc in self.rakecycles:
+            print(rc.serviceIds)
+            print("---")
+            print(str(rc.serviceIds[0]))
+            print("---")
             for path in self.allCyclesWtt:
-                if rc.serviceIds[0] == path[0].serviceId:
+                print(f"ahaha {str(path[0].serviceId[0])}")
+                if str(rc.serviceIds[0]) == str(path[0].serviceId[0]):
+                    print(f"adding path of length {len(path)}")
                     rc.servicePath = path
             if not rc.servicePath:
                 print(f"Issue with serviceIdpath: {rc.linkName}") # every rakecycle must be assigned its path by the end.
-
+                logger.warning(f"Unable to match rakelink {rc.linkName} to a wtt-derived service-path. Fixing...")
+                fixedPath = self.fixPath(rc)
+                if rc.status == RakeLinkStatus.INVALID:
+                    # delete the RakeCycle
+                    self.rakecycles.remove(rc)
+                    continue
+                rc.servicePath = fixedPath
+        logger.debug(f"# Rakecycles after fixing: {len(self.rakecycles)}")
+        
         # Then for every service in every rakecycle, parse the stationcol 
         # to extract timings and create StationEvents.
         for rc in self.rakecycles:
+            # print(rc.servicePath)
+            if not rc.servicePath:
+                print(rc)
             for svc in rc.servicePath:
                 svc.generateStationEvents()
                 assert(svc.events)
@@ -170,11 +275,13 @@ class RakeCycle:
     # day, aka Rake-Link
     def __init__(self, linkName): # linkName comes from summary sheet.
         self.rake = None
+        self.status = RakeLinkStatus.VALID
 
         # From parsing summary sheet.
         self.linkName = linkName  # A, B, C etc.
         # self.services = {}       # serviceID: Service
         self.serviceIds = [] # list of serviceIDs that implement this link
+        self.unmatchedIds = []
         # we want the summary sheet and the wtt to agree always
         self.startDepot = None
         self.endDepot = None
@@ -194,7 +301,7 @@ class RakeCycle:
     
     def __repr__(self):
         rake_str = self.rake.rakeId if self.rake else 'Unassigned'
-        n_services = len(self.services)
+        n_services = len(self.serviceIds)
         start = self.startDepot if self.startDepot else '?'
         end = self.endDepot if self.endDepot else '?'
 
@@ -212,7 +319,11 @@ class RakeCycle:
 
 from enum import Enum
 
-# initially we only handle regular suburban trains
+class RakeLinkStatus(Enum):
+    VALID = 'valid'
+    INVALID = 'invalid'
+
+# initially we onl handle regular suburban trains
 # excluding dahanu road services
 class ServiceType(Enum):
     REGULAR = 'regular'
@@ -276,6 +387,7 @@ class Service:
 
         stName = None
         serviceCol = self.rawServiceCol
+        print(serviceCol)
         for rowIdx, cell in serviceCol.items():
             if TimeTableParser.rTimePattern.match(cell):
                 stName= sheet.iat[rowIdx, 0]
@@ -291,32 +403,35 @@ class Service:
                     # hack special case. 
                     # make names identical in wtt is the right solution
                     stName = "M'BAI CENTRAL(L)" 
-                if str(stName).strip() in self.wtt.stations.keys():
-                    station = self.wtt.stations[str(stName).strip()]
-                    print(f"Last station from time: {str(stName).strip()}")
-                    return station
+                if str(stName).strip() in TimeTableParser.stations.keys():
+                    station = TimeTableParser.stations[str(stName).strip()]
+                    # print(f"Last station from time: {str(stName).strip()}")
+                    print(f"Got valid station from time: {station.name}")
                 elif "REVERSED" in str(stName).upper():
-                    # print("reversal")
+                    print("reversal")
                     # check row above
                     stName= sheet.iat[rowIdx - 1, 0]
                     if pd.isna(stName) or not str(stName).strip():
                         stName = sheet.iat[rowIdx - 2, 0]
                 
                 # check arrival and departure
+                print(sheet.iat[rowIdx, 1])
                 isDwell = True if sheet.iat[rowIdx, 1] == "D" else False
-                tDep = cell
+                tDep = str(cell)
+                tArr = None
                 if isDwell: 
                     tArr = str(serviceCol.iloc[rowIdx - 1]).strip()
                     event = StationEvent(stName, self, tArr)
                     event.tDeparture = tDep
                 else:
                     event = StationEvent(stName, self, tDep)
+                print(f"Creating event {stName}: [A: {tArr}, D: {tDep}]")
 
                 self.events.append(event)
 
         print(f"For service {self.serviceId}, events are:")
         for ev in self.events:
-            print(f"{ev.atStation}: {event.tDeparture}")
+            print(f"{ev.atStation}: {ev.tDeparture}")
                         
     
     def __repr__(self):
@@ -421,7 +536,6 @@ class TimeTableParser:
         return suburbanServices
 
     def parseRakeLinks(self, sheet):
-        unmatchedIds = []
         allServices = self.wtt.upServices + self.wtt.downServices
         print(len(allServices))
         sheet = sheet.reset_index(drop=True)
@@ -455,8 +569,8 @@ class TimeTableParser:
                     if matchEty:
                         sIds.append(matchEty.group(0))  # store the ETY token as string
                     else:
-                        print("no ety")
-                        print(cell)
+                        # print("no ety")
+                        # print(cell)
                         sIds.append(int(re.search(r'\d+', cell).group())) # extract the integer ex 93232 L/SPL
 
             if not sIds:
@@ -468,16 +582,16 @@ class TimeTableParser:
                 service = next((s for s in allServices if sid in s.serviceId), None)
                 if service:
                     # rc.services[sid] = service # unordered, does not maintain the path
-                    rc.serviceIds.append(sid)
+                    rc.serviceIds.append(sid) # stores defined services only
                 else:
-                    unmatchedIds.append((linkName, sid))
+                    rc.unmatchedIds.append((linkName, sid))
 
             self.wtt.rakecycles.append(rc)
 
         # summary
-        if unmatchedIds:
-            print(f"\n{len(unmatchedIds)} service IDs from summary sheet not found in detailed WTT:")
-            for linkName, sid in unmatchedIds:
+        if rc.unmatchedIds:
+            print(f"\n{len(rc.unmatchedIds)} service IDs from summary sheet not found in detailed WTT:")
+            for linkName, sid in rc.unmatchedIds:
                 print(f" ** Link {linkName}: Service {sid}")
         else:
             print("\nAll rake link service IDs successfully matched with WTT services.")
@@ -551,6 +665,8 @@ class TimeTableParser:
             "CSMT": Station(44, "CHATTRAPATI SHIVAJI MAHARAJ TERMINUS"),
             "PNVL": Station(45, "PANVEL")
         }
+
+        TimeTableParser.stations = self.wtt.stations
 
     # First station with a valid time
     # "EX ..."
