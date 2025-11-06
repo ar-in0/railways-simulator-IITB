@@ -443,6 +443,10 @@ class Service:
                     # hack special case. 
                     # make names identical in wtt is the right solution
                     stName = "M'BAI CENTRAL(L)" 
+                if str(stName).strip().upper() == "KANDIVLI":
+                    # hack special case. 
+                    # make names identical in wtt is the right solution
+                    stName = "KANDIVALI" 
                 if str(stName).strip() in TimeTableParser.stations.keys():
                     station = TimeTableParser.stations[str(stName).strip()]
                     # # print(f"Last station from time: {str(stName).strip()}")
@@ -797,6 +801,9 @@ class TimeTableParser:
             # hack special case. 
             # make names identical in wtt is the right solution
             stationName = "M'BAI CENTRAL(L)" 
+        
+        if stationName.upper() == "KANDIVLI":
+            stationName = "KANDIVALI"
 
         station = self.wtt.stations[stationName.strip().upper()]
         assert(station)
@@ -846,6 +853,10 @@ class TimeTableParser:
                         # hack special case. 
                         # make names identical in wtt is the right solution
                         stName = "M'BAI CENTRAL(L)" 
+                    if str(stName).strip().upper() == "KANDIVLI":
+                        # hack special case. 
+                        # make names identical in wtt is the right solution
+                        stName = "KANDIVALI" 
                     if str(stName).strip() in self.wtt.stations.keys():
                         station = self.wtt.stations[str(stName).strip()]
                         # print(f"Last station from time: {str(stName).strip()}")

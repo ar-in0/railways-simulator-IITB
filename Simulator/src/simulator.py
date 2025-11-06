@@ -330,18 +330,14 @@ class Simulator:
             raise ValueError("No valid rakecycles found.")
         rc = rakecycles[0]
 
-        # collect stations in order of travel
-        stations = []
-        seen = set()
-        for svc in rc.servicePath:
-            for ev in svc.events:
-                st = str(ev.atStation).strip().upper()
-                if st and st not in seen:
-                    seen.add(st)
-                    stations.append(st)
+        # === collect stations in travel order from the WTT master list ===
+        # wtt.stations is likely a dict: { 'STATION_CODE': StationObject }
+        # so we take its keys (already uppercase codes)
+        stations = list(self.parser.wtt.stations.keys())
+        stations = [s.strip().upper() for s in stations]
         station_to_y = {st: i for i, st in enumerate(stations)}
 
-        # prepare data
+        # === prepare data ===
         x, y, z = [], [], []
         for svc in rc.servicePath:
             for ev in svc.events:
@@ -356,11 +352,17 @@ class Simulator:
                     except:
                         continue
                 minutes = t.hour * 60 + t.minute + t.second / 60
+
+                st_name = str(ev.atStation).strip().upper()
+                if st_name not in station_to_y:
+                    print("⚠ Skipping unmapped station:", st_name)
+                    continue
+
                 x.append(minutes)
-                y.append(station_to_y[str(ev.atStation).strip().upper()])
+                y.append(station_to_y[st_name])
                 z.append(0)
 
-        # make plot
+        # === make plot ===
         fig = go.Figure(
             data=[go.Scatter3d(
                 x=x, y=y, z=z,
@@ -372,20 +374,31 @@ class Simulator:
             )]
         )
 
+        # === correct reversed time axis and viewing angle ===
         fig.update_layout(
             scene=dict(
-                xaxis_title="Time (minutes →)",
+                xaxis=dict(
+                    title="Time (minutes →)",
+                    
+                ),
                 yaxis=dict(
                     title="Station (distance ↑)",
                     tickvals=list(range(len(stations))),
                     ticktext=stations
                 ),
-                zaxis=dict(visible=False)
+                zaxis=dict(visible=False),
+                camera=dict(
+                    eye=dict(x=1.8, y=0.01, z=1.2),  # how far you are from the scene
+                    up=dict(x=0, y=1, z=0),          # z-axis = "up"
+                    center=dict(x=0, y=0, z=0)
+                ),
+                # aspectmode="manual",
+                # aspectratio=dict(x=2, y=3, z=0.2)
             ),
             width=1300,
             height=800,
             margin=dict(l=10, r=10, b=10, t=40),
-            title=f"Rake Cycle {rc.linkName} — Time–Distance Plot"
+            # title=f"Rake Cycle {rc.linkName} — Time–Distance Plot"
         )
 
         return fig
