@@ -48,12 +48,14 @@ class TimeTable:
         # isnt it better for the service itself to contain station events?
         self.rakecycles = [] # needs timing info
         self.allCyclesWtt = [] # from wtt linked follow
+        self.conflictingLinks = []
 
     
-    def generateRakeCyclePath(self, rakecycle):
-        # Rakecycle contains the serviceIDs of a rake-link.
-        # We simply find those services, get the stationpath with 
-        print(rakecycle)
+    # def generateRakeCyclePath(self, rakecycle):
+    #     # Rakecycle contains the serviceIDs of a rake-link.
+    #     # We simply find those services, get the stationpath with 
+    #     # print(rakecycle)
+
 
     # We have a digraph, with nodes v repreented by 
     # Services, and edge (u,v) rep by `u.linkedTo = v`.
@@ -148,24 +150,24 @@ class TimeTable:
             chain = []
             followChain(sid, chain)
             if chain:
-                # print(chain[0])
+                # # print(chain[0])
                 self.allCyclesWtt.append(chain)
 
-        print(f"Constructed {len(self.allCyclesWtt)} rake-cycle paths.")
-        for path in self.allCyclesWtt:
-            print(path[0])
+        # print(f"Constructed {len(self.allCyclesWtt)} rake-cycle paths.")
+        # for path in self.allCyclesWtt:
+        #     # print(path[0])
     
     # rc: rake cycle
     def fixPath(self, rc):
         linkName = rc.linkName
         logger.info(f"Fixing serviceID path for rakecycle {linkName}")
         sid = rc.serviceIds[0]
-        print(sid)
+        # print(sid)
 
-        if rc.unmatchedIds:
-            logger.debug(f"Services {rc.unmatchedIds} not defined in the WTT. Discarding the link.")
+        if rc.undefinedIds:
+            logger.debug(f"Services {rc.undefinedIds} not defined in the WTT. Discarding the link.")
             rc.status = RakeLinkStatus.INVALID
-            return 
+            return []
 
         # is the first service of the wtt rakelink even defined?
         # Sids has every defined serviceID only. see generaterakecycles.
@@ -180,9 +182,9 @@ class TimeTable:
             logger.debug(f"Service {sid} appears as a linkedTo of another service in WTT. Possible mislink in rakecycle {linkName}.")
             logger.info("Treat summary as source of truth. Reconstruct path using the serviceIds in the summary")
             path = []
-            # print(rc.serviceIds)
+            # # print(rc.serviceIds)
             for id in rc.serviceIds:
-                # print(f"aha {id}")
+                # # print(f"aha {id}")
                 svc = allServices.get(str(id)) 
                 assert(svc)
                 path.append(svc)
@@ -197,48 +199,71 @@ class TimeTable:
                 sv.serviceId[0]                    # then sort by the ID itself
             )
         )
-        for sv in self.suburbanServices:
-            print(sv)
+        # for sv in self.suburbanServices:
+            # print(sv)
 
         self.makeRakeCyclePathsSV(self.suburbanServices)
-        print(f"# rake links = {len(self.allCyclesWtt)}")
+        # print(f"# rake links = {len(self.allCyclesWtt)}")
 
         for path in self.allCyclesWtt:
-            print(f"rakecycle starting with service {path[0].serviceId} has length = {len(path)}")
+            # print(f"rakecycle starting with service {path[0].serviceId} has length = {len(path)}")
             sidpath = [s.serviceId[0] for s in path]
-            print(sidpath)
+            # print(sidpath)
 
         # need to link the paths to the rake linkNames
         # wtt.rakeclcyes rc contain the linkname
         # and servicepath. Assign a path in allcycles to
         # rc.servicePath
         # rc.serviceIds contains the service path. [sids]
-        print("linking rake to path")
+        # print("linking rake to path")
+        invalid = []
         for rc in self.rakecycles:
-            print(rc.serviceIds)
-            print("---")
-            print(str(rc.serviceIds[0]))
-            print("---")
+            # print(rc.serviceIds)
+            # print("---")
+            # print(str(rc.serviceIds[0]))
+            # print("---")
             for path in self.allCyclesWtt:
-                print(f"ahaha {str(path[0].serviceId[0])}")
+                # print(f"ahaha {str(path[0].serviceId[0])}")
                 if str(rc.serviceIds[0]) == str(path[0].serviceId[0]):
-                    print(f"adding path of length {len(path)}")
+                    # print(f"adding path of length {len(path)}")
                     rc.servicePath = path
+                # else:
+                #     logger.debug("Mismatch between wtt and summary init")
+                #     logger.debug(f"summ: {str(rc.serviceIds[0])}, wtt: {str(path[0].serviceId[0])}")
             if not rc.servicePath:
-                print(f"Issue with serviceIdpath: {rc.linkName}") # every rakecycle must be assigned its path by the end.
+                logger.debug(f"summ: {str(rc.serviceIds[0])}, wtt: {str(path[0].serviceId[0])}")
+                # print(f"Issue with serviceIdpath: {rc.linkName}") # every rakecycle must be assigned its path by the end.
                 logger.warning(f"Unable to match rakelink {rc.linkName} to a wtt-derived service-path. Fixing...")
                 fixedPath = self.fixPath(rc)
                 if rc.status == RakeLinkStatus.INVALID:
                     # delete the RakeCycle
-                    self.rakecycles.remove(rc)
-                    continue
+                    invalid.append(rc)
+                    # self.rakecycles.remove(rc)
+                    # continue
                 rc.servicePath = fixedPath
+
+        for rc in invalid:
+            self.rakecycles.remove(rc)
+
         logger.debug(f"# Rakecycles after fixing: {len(self.rakecycles)}")
+
+        # validate paths:
+        # in class rakecycle, serviceIDs[] reps the service serires
+        # parsed from the summary.
+        # At this point, we have a set of 
+        # The rakecycles obtained from wtt traversal should exactly match
+        # those obtained from the summary parse. Rakecycles that do not 
+        # match must be inspected seperately
+        self.validateRakeCycles()
+        
+        logger.debug(f"After fixup and validation, we have {len(self.rakecycles)} consistent cycles.")
+        # for rc in self.rakecycles:
+            # print(rc)
         
         # Then for every service in every rakecycle, parse the stationcol 
         # to extract timings and create StationEvents.
         for rc in self.rakecycles:
-            # print(rc.servicePath)
+            print(rc.servicePath)
             if not rc.servicePath:
                 print(rc)
             for svc in rc.servicePath:
@@ -257,6 +282,21 @@ class TimeTable:
     def printStatistics(self):
         pass
 
+    def validateRakeCycles(self):
+        cycles = self.rakecycles
+        logger.debug("Removing inexact rakecycle matches.")
+        for rc in cycles:
+            wttPath = [svc.serviceId[0] for svc in rc.servicePath]
+            summaryPath = rc.serviceIds
+
+            if wttPath != summaryPath:
+                # print(rc)
+                # print(f"wttpath: {wttPath}")
+                # print(f"summarypath: {summaryPath}")
+                self.conflictingLinks.append(rc)
+        
+        for rc in self.conflictingLinks:
+            self.rakecycles.remove(rc)
 
 class Rake:
     '''Physical rake specifications.'''
@@ -281,7 +321,7 @@ class RakeCycle:
         self.linkName = linkName  # A, B, C etc.
         # self.services = {}       # serviceID: Service
         self.serviceIds = [] # list of serviceIDs that implement this link
-        self.unmatchedIds = []
+        self.undefinedIds = []
         # we want the summary sheet and the wtt to agree always
         self.startDepot = None
         self.endDepot = None
@@ -387,11 +427,11 @@ class Service:
 
         stName = None
         serviceCol = self.rawServiceCol
-        print(serviceCol)
+        # print(serviceCol)
         for rowIdx, cell in serviceCol.items():
             if TimeTableParser.rTimePattern.match(cell):
                 stName= sheet.iat[rowIdx, 0]
-                # print(stName)
+                # # print(stName)
                 # this can be made better
                 if pd.isna(stName) or not str(stName).strip():
                     # check row above
@@ -405,35 +445,55 @@ class Service:
                     stName = "M'BAI CENTRAL(L)" 
                 if str(stName).strip() in TimeTableParser.stations.keys():
                     station = TimeTableParser.stations[str(stName).strip()]
-                    # print(f"Last station from time: {str(stName).strip()}")
-                    print(f"Got valid station from time: {station.name}")
+                    # # print(f"Last station from time: {str(stName).strip()}")
+                    # print(f"Got valid station from time: {station.name}")
                 elif "REVERSED" in str(stName).upper():
-                    print("reversal")
+                    # print("reversal")
                     # check row above
                     stName= sheet.iat[rowIdx - 1, 0]
                     if pd.isna(stName) or not str(stName).strip():
                         stName = sheet.iat[rowIdx - 2, 0]
                 
                 # check arrival and departure
-                print(sheet.iat[rowIdx, 1])
-                isDwell = True if sheet.iat[rowIdx, 1] == "D" else False
-                tDep = str(cell)
-                tArr = None
-                if isDwell: 
-                    tArr = str(serviceCol.iloc[rowIdx - 1]).strip()
-                    event = StationEvent(stName, self, tArr)
-                    event.tDeparture = tDep
-                else:
-                    event = StationEvent(stName, self, tDep)
-                print(f"Creating event {stName}: [A: {tArr}, D: {tDep}]")
+                # at a time cell, is it near an A or D cell.
+                # if so, there is some dwell.
+                # print(sheet.iat[rowIdx, 1])
+                # isDTime = True if sheet.iat[rowIdx, 1] == "D" else False
+                isATime = True if sheet.iat[rowIdx, 1] == "A" else False
 
-                self.events.append(event)
+                # assuming A always before D
+                if isATime:
+                    tArr = str(cell).strip()
+                    e1 = StationEvent(stName, self, tArr, EventType.ARRIVAL)
+                    # assert next time is a D time
+                    isDTime = True if sheet.iat[rowIdx+1, 1] == "D" else False
+                    self.events.append(e1)
+                    # # print(sheet.iat[rowIdx+1, 1])
+                    if isDTime:
+                        tDep = str(serviceCol.iloc[rowIdx + 1]).strip()
+                        # print(tDep)
+                        # assert tDep is a time
+                        if TimeTableParser.rTimePattern.match(tDep):
+                            # print("boom")
+                            e2 = StationEvent(stName, self, tDep, EventType.DEPARTURE)
+                            self.events.append(e2)
+                    else:
+                        # probably the last station
+                        # nothing to do
+                        pass
+                else:
+                    # time at a non-A spot, single event
+                    # arrival-departure events will be with a single time.
+                    # we assume the gap between arrival departure is small, 
+                    # but arrival time is specified in the wtt.
+                    time = str(cell).strip()
+                    e = StationEvent(stName, self, time, EventType.ARRIVAL)
+                    self.events.append(e)
 
         print(f"For service {self.serviceId}, events are:")
         for ev in self.events:
-            print(f"{ev.atStation}: {ev.tDeparture}")
-                        
-    
+            print(f"{ev.atStation}: {ev.atTime}")
+                    
     def __repr__(self):
         sid = ','.join(str(s) for s in self.serviceId) if self.serviceId else 'None'
         dirn = self.direction.name if self.direction else 'NA'
@@ -452,14 +512,19 @@ class Service:
     def getFirstStation(self):
         return self.stationPath[0]
     
+class EventType(Enum):
+    ARRIVAL = 'ARRIVAL',
+    DEPARTURE = 'DEPARTURE'
+
+    
 class StationEvent:
-    def __init__(self, st, sv, tArr, tDep=None):
+    def __init__(self, st, sv, time, type):
         self.atStation = st
         self.ofService = sv
+        self.atTime = time
 
         self.platform = None
-        self.tArrival = tArr
-        self.tDeparture = tArr
+        self.eType = None
 
 # Activity at a station is dynamic with time
 # The activity is studied to generate rake-cycles
@@ -492,55 +557,84 @@ class TimeTableParser:
 
     wttSheets = [] # upsheet, downsheet, summary sheets
 
-    def __init__(self, fpWttXlsx, fpWttSummaryXlsx):
+    def __init__(self, fpWttXlsx=None, fpWttSummaryXlsx=None):
         self.wtt = TimeTable()
         self.stationCol = None # df column with stations
 
-        self.xlsxToDf(fpWttXlsx)
-        self.registerStations()
-        self.registerServices()
+        if fpWttSummaryXlsx and fpWttXlsx:
+            self.xlsxToDf(fpWttXlsx)
+            self.registerStations()
+            self.registerServices()
 
-        # get timing information too 
-        # WTT services must be fully populated 
-        # before starting the summary-sheet parse.
-
-
-        # parse summary sheet
-        # generate rakelink summary
-        self.parseWttSummary(fpWttSummaryXlsx)
+            # get timing information too 
+            # WTT services must be fully populated 
+            # before starting the summary-sheet parse.
 
 
-        self.wtt.suburbanServices = self.isolateSuburbanServices()
-        # print(self.suburbanServices)
+            # parse summary sheet
+            # generate rakelink summary
+            self.parseWttSummary(fpWttSummaryXlsx)
+
+
+            self.wtt.suburbanServices = self.isolateSuburbanServices()
+        # # print(self.suburbanServices)
         # for s in self.suburbanServices:
-        #     print(s.serviceId)
+        #     # print(s.serviceId)
+
+    @classmethod
+    def fromFileObjects(cls, wttFileObj, summaryFileObj):
+        '''Create TimeTableParser from BytesIO objects for uploaded files'''
+        instance = cls()
+        instance.xlsxToDfFromFileObj(wttFileObj)
+        instance.registerStations()
+        instance.registerServices()
+        instance.parseWttSummaryFromFileObj(summaryFileObj)
+        instance.wtt.suburbanServices = instance.isolateSuburbanServices()
+        return instance
+
+    def xlsxToDfFromFileObj(self, fileObj):
+        '''Parse Excel from file object instead of path'''
+        xlsx = pd.ExcelFile(fileObj)
+        for sheet in xlsx.sheet_names:
+            df = xlsx.parse(sheet, skiprows=4).dropna(axis=1, how='all')
+            TimeTableParser.wttSheets.append(df)
+            
+        self.upSheet = TimeTableParser.wttSheets[0]
+        self.downSheet = TimeTableParser.wttSheets[1]
+
+    def parseWttSummaryFromFileObj(self, fileObj):
+        '''Parse summary Excel from file object instead of path'''
+        xlsx = pd.ExcelFile(fileObj)
+        summarySheet = xlsx.sheet_names[0]
+        self.wttSummarySheet = xlsx.parse(summarySheet, skiprows=2).dropna(axis=0, how="all")
+        self.parseRakeLinks(self.wttSummarySheet)
     
     def isolateSuburbanServices(self):
         suburbanIds = set()
-        print("Updating suburban")
+        # print("Updating suburban")
         seen, repeated = set(), set()
         for rc in self.wtt.rakecycles:
-            print(rc.serviceIds)
+            # print(rc.serviceIds)
             suburbanIds.update(rc.serviceIds)
             s = set(rc.serviceIds)
             repeated |= seen & s
             seen |= s
-        print(repeated)
+        # print(repeated)
         
         suburbanServices = []
         for s in (self.wtt.upServices + self.wtt.downServices):
             if any(sid in suburbanIds for sid in s.serviceId):
                 suburbanServices.append(s)
 
-        print(f"\nSuburban services identified: {len(suburbanServices)} / {len(self.wtt.upServices) + len(self.wtt.downServices)}")
+        # print(f"\nSuburban services identified: {len(suburbanServices)} / {len(self.wtt.upServices) + len(self.wtt.downServices)}")
         return suburbanServices
 
     def parseRakeLinks(self, sheet):
         allServices = self.wtt.upServices + self.wtt.downServices
-        print(len(allServices))
+        # print(len(allServices))
         sheet = sheet.reset_index(drop=True)
 
-        print(f"Summary sheet rows: {len(sheet)}")
+        # print(f"Summary sheet rows: {len(sheet)}")
 
         for i in range(len(sheet)):
             sIDRow = sheet.iloc[i]
@@ -563,14 +657,14 @@ class TimeTableParser:
                 
                 # use the serviceID idiom
                 if TimeTableParser.isServiceID(cell):
-                    print("found sids")
+                    # print("found sids")
                     # numeric or ETY-style
                     matchEty = TimeTableParser.rEtyPattern.search(cell)
                     if matchEty:
                         sIds.append(matchEty.group(0))  # store the ETY token as string
                     else:
-                        # print("no ety")
-                        # print(cell)
+                        # # print("no ety")
+                        # # print(cell)
                         sIds.append(int(re.search(r'\d+', cell).group())) # extract the integer ex 93232 L/SPL
 
             if not sIds:
@@ -579,19 +673,17 @@ class TimeTableParser:
             rc = RakeCycle(linkName)
 
             for sid in sIds:
+                rc.serviceIds.append(sid) # serviceIds stores every sid in summary
                 service = next((s for s in allServices if sid in s.serviceId), None)
-                if service:
-                    # rc.services[sid] = service # unordered, does not maintain the path
-                    rc.serviceIds.append(sid) # stores defined services only
-                else:
-                    rc.unmatchedIds.append((linkName, sid))
+                if not service:
+                    rc.undefinedIds.append((linkName, sid)) # but we also mark undefined services
 
             self.wtt.rakecycles.append(rc)
 
         # summary
-        if rc.unmatchedIds:
-            print(f"\n{len(rc.unmatchedIds)} service IDs from summary sheet not found in detailed WTT:")
-            for linkName, sid in rc.unmatchedIds:
+        if rc.undefinedIds:
+            # print(f"\n{len(rc.undefinedIds)} service IDs from summary sheet not found in detailed WTT:")
+            for linkName, sid in rc.undefinedIds:
                 print(f" ** Link {linkName}: Service {sid}")
         else:
             print("\nAll rake link service IDs successfully matched with WTT services.")
@@ -636,8 +728,8 @@ class TimeTableParser:
         sheet = self.upSheet # a dataframe
         self.stationCol = sheet.iloc[:, 0]
         # self.stationCol = self.cleanCol(sheet, 0) # 0 column index of station
-        # print(stationCol)
-        # print((self.stationCol[1:-8])) 
+        # # print(stationCol)
+        # # print((self.stationCol[1:-8])) 
 
         for idx, rawVal in enumerate(self.stationCol[1:-8]): # to skip the linkage line + nans
             if pd.isna(rawVal):
@@ -647,7 +739,7 @@ class TimeTableParser:
                 continue
             
             st = Station(idx, stName.upper())
-            print(f"Registering station {st.name}, idx {st.id}")
+            # print(f"Registering station {st.name}, idx {st.id}")
             self.wtt.stations[st.name] = st 
         
         # create station map
@@ -675,7 +767,7 @@ class TimeTableParser:
         '''Determines the first arrival station in the service path.
         serviceCol: pandas.Series
         sheet: pandas.Dataframe'''
-        # print(serviceCol)
+        # # print(serviceCol)
 
         # for every column:
         # stop at the first time string
@@ -689,7 +781,7 @@ class TimeTableParser:
                 stationName = sheet.iat[rowIdx, 0]
                 # row = sheet.iloc[rowIdx, :].astype(str)
                 # stationName = row.iloc[0]
-                # print(f"{stationName}: {cell}")
+                # # print(f"{stationName}: {cell}")
 
                 if pd.isna(stationName) or not str(stationName).strip():
                     # check row above if possible
@@ -700,7 +792,7 @@ class TimeTableParser:
         if pd.isna(stationName) or not str(stationName).strip():
             raise ValueError(f"Invalid station name near row {rowIdx}")
         
-        # print(self.wtt.stations.keys())
+        # # print(self.wtt.stations.keys())
         if stationName == "M'BAI CENTRAL (L)":
             # hack special case. 
             # make names identical in wtt is the right solution
@@ -718,7 +810,7 @@ class TimeTableParser:
         # If some cell contains "Arrl./arrl/ARRL/ARR":
         # check for a name in stationmap and a time in nearby cells
         # "nearby cells": current cell, cell above, cell below.
-        # (if the stationmap doesnt contain the string, print it)
+        # (if the stationmap doesnt contain the string, # print it)
 
         # else:
         # return the station associated with the last time
@@ -730,7 +822,7 @@ class TimeTableParser:
         for rowIdx, cell in serviceCol.items():
             cellStr = str(cell).strip().upper()
             if re.search(r'\bARRL?\.?\b', cellStr, flags=re.IGNORECASE):
-                # print("found arr")
+                # # print("found arr")
                 arrlRowIdx = rowIdx
                 break
 
@@ -742,7 +834,7 @@ class TimeTableParser:
                 cell = str(serviceCol.iloc[rowIdx]).strip()
                 if TimeTableParser.rTimePattern.match(cell):
                     stName= sheet.iat[rowIdx, 0]
-                    # print(stName)
+                    # # print(stName)
                     # this can be made better
                     if pd.isna(stName) or not str(stName).strip():
                         # check row above
@@ -756,20 +848,20 @@ class TimeTableParser:
                         stName = "M'BAI CENTRAL(L)" 
                     if str(stName).strip() in self.wtt.stations.keys():
                         station = self.wtt.stations[str(stName).strip()]
-                        print(f"Last station from time: {str(stName).strip()}")
+                        # print(f"Last station from time: {str(stName).strip()}")
                         return station
                     elif "REVERSED" in str(stName).upper():
-                        # print("reversal")
+                        # # print("reversal")
                         # check row above
                         stName= sheet.iat[rowIdx - 1, 0]
                         if pd.isna(stName) or not str(stName).strip():
                             stName = sheet.iat[rowIdx - 2, 0]
                         station = self.wtt.stations[str(stName).strip()]
-                        print(f"Last station from time,: {str(stName).strip()}")
+                        # print(f"Last station from time,: {str(stName).strip()}")
                         return station
 
 
-            print("Could not determine final station (no ARRL or valid time)")
+            # print("Could not determine final station (no ARRL or valid time)")
             return station
         
         # arrl found, now look in nearby cells for a station
@@ -782,7 +874,7 @@ class TimeTableParser:
         stationName = None
         for r in nearbyRows:
             cellVal = str(serviceCol.iloc[r]).strip().upper()
-            print(f"'{cellVal}'")
+            # print(f"'{cellVal}'")
             if not cellVal or cellVal == 'NAN':
                 continue
 
@@ -795,13 +887,13 @@ class TimeTableParser:
 
             if stationName:
                 # found a valid station in/near the ARRL region
-                print(f"found stationname {stationName} from row {r}: {cellVal}")
+                # print(f"found stationname {stationName} from row {r}: {cellVal}")
                 station = TimeTableParser.stationMap[stationName]
-                # print(station)
+                # # print(station)
                 return station
 
-            # if not found, print the cell for debugging
-            print(f"No station match near ARRL at row {r}: {cellVal}")
+            # if not found, # print the cell for debugging
+            # print(f"No station match near ARRL at row {r}: {cellVal}")
         
 
     def extractInitialDepot(self, serviceID):
@@ -820,8 +912,8 @@ class TimeTableParser:
             return None
 
         rowIdx = match.index[0]
-        print(rowIdx)
-        # print(serviceCol)
+        # print(rowIdx)
+        # # print(serviceCol)
 
         # Guard
         if rowIdx not in serviceCol.index:
@@ -848,7 +940,7 @@ class TimeTableParser:
         if not depTime or depTime.lower() == "nan" or not linkedService or linkedService.lower() == "nan" or not match:
             linkedService = None
 
-        print(f"Linked to: {linkedService} at {depTime}")
+        # print(f"Linked to: {linkedService} at {depTime}")
         return linkedService
     
     @staticmethod
@@ -888,7 +980,7 @@ class TimeTableParser:
         # if more integers, process them in a second pass
         # as special services. (where you consider dates, etc.)
         idRegion =  serviceCol[:6]
-        # print(idRegion)
+        # # print(idRegion)
         ids = []
         rakeSize = 15 # default size
         zone = None
@@ -915,13 +1007,13 @@ class TimeTableParser:
             #     match = TimeTableParser.rLinkNamePattern.search(cell) # extract the XX
             #     if match:
             #         linkName = match.group(1)
-            #         print(f"Rake Link Name: {linkName}")
+            #         # print(f"Rake Link Name: {linkName}")
             #         # record it
             #         TimeTableParser.rakeLinkNames.append(linkName)
 
             # check for CAR
             if "CAR" in cell.upper():
-                # print(cell)
+                # # print(cell)
                 match = re.search(r'(12|15|20|10)\s*CAR', cell, flags=re.IGNORECASE)
                 assert match is not None
                 rakeSize = int(match.group(1))
@@ -947,19 +1039,19 @@ class TimeTableParser:
         for col in serviceCols[2:numCols]:
             idx = serviceCols.get_loc(col)
             clean = self.cleanCol(sheet, idx)
-            # print(clean)
+            # # print(clean)
             if (clean.empty):
                 continue
             # skip repeat STATION columns
             if (not clean.empty and clean.iloc[0].strip().upper() == "STATIONS"):
-                print("repeat stations")
+                # print("repeat stations")
                 continue
 
             # check for an ADAD column
             vals = clean.dropna().astype(str).str.strip().str.upper().tolist()
             isADAD = any(a == "A" and b == "D" for a, b in zip(vals, vals[1:]))
             if(isADAD):
-                print("adad column, skip") # ideally eliminate from the sheet before
+                # print("adad column, skip") # ideally eliminate from the sheet before
                 continue
             
             # if we are here, the column is a service column
@@ -983,19 +1075,19 @@ class TimeTableParser:
             # needs AC?
             # Most AC services have specific dates.
             service.needsACRake = TimeTableParser.extractACRequirement(clean)
-            # print(f"{service.serviceId}: {service.needsACRake}")
+            # # print(f"{service.serviceId}: {service.needsACRake}")
 
             # retrieve the station path 
             service.initStation = self.extractInitStation(clean, sheet)
-            print(f"Init station for {service.serviceId}: {service.initStation.name}")
+            # print(f"Init station for {service.serviceId}: {service.initStation.name}")
 
             service.finalStation = self.extractFinalStation(clean, sheet)
             if (service.finalStation):
                 print(f"Final Station for {service.serviceId}: {service.finalStation.name}")
 
             service.linkedTo = self.extractLinkedToNext(clean, direction)
-            print(f"Service {service.serviceId} linked to service: {service.linkedTo}")
-            print(service)
+            # print(f"Service {service.serviceId} linked to service: {service.linkedTo}")
+            # print(service)
 
             if direction == Direction.UP:
                 self.wtt.upServices.append(service)
@@ -1015,14 +1107,14 @@ class TimeTableParser:
         self.doRegisterServices(upSheet, Direction.UP, UP_TT_COLUMNS)
         
 
-        print("Now register down services")
+        # print("Now register down services")
         downSheet = self.downSheet
         DOWN_TT_COLUMNS = 982 # with uniform row indexing, last = 91055
         self.doRegisterServices(downSheet, Direction.DOWN, DOWN_TT_COLUMNS)
-        print("Down services registered")
+        # print("Down services registered")
 
-        # print(len(TimeTableParser.rakeLinkNames))
-        # print("AL" in TimeTableParser.rakeLinkNames)
+        # # print(len(TimeTableParser.rakeLinkNames))
+        # # print("AL" in TimeTableParser.rakeLinkNames)
 
         
 if __name__ == "__main__":
