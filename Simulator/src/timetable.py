@@ -270,8 +270,25 @@ class TimeTable:
                 svc.generateStationEvents()
                 assert(svc.events)
 
+
+        # assign rakes to rakecycles
+        self.assignRakes()
+
+
         # for rc in self.rakecycles:
         #     self.generateRakeCyclePath(rc) 
+    def assignRakes(self):
+        for i, rc in enumerate(self.rakecycles):
+            rake = Rake(i)
+            for svc in rc.servicePath:
+                if svc.needsACRake:
+                    rake.isAC = True
+                    break
+                if svc.rakeSizeReq:
+                    rake.rakeSize = svc.rakeSizeReq
+                    break
+            rc.rake = rake
+
 
     # Summarizes the wtt
     # 1. Total # services
@@ -417,7 +434,6 @@ class Service:
         
         # self.name = None
 
-
     def generateStationEvents(self):
         sheet = None
         if self.direction == Direction.UP:
@@ -429,7 +445,9 @@ class Service:
         serviceCol = self.rawServiceCol
         # print(serviceCol)
         for rowIdx, cell in serviceCol.items():
-            if TimeTableParser.rTimePattern.match(cell):
+            match = TimeTableParser.rTimePattern.search(str(cell))
+            if match:
+                tCell = match.group(0)
                 stName= sheet.iat[rowIdx, 0]
                 # # print(stName)
                 # this can be made better
@@ -452,11 +470,15 @@ class Service:
                     # # print(f"Last station from time: {str(stName).strip()}")
                     # print(f"Got valid station from time: {station.name}")
                 elif "REVERSED" in str(stName).upper():
+                    # The timing in the reversed as belongs to the last station with
+                    # a valid time, not the station above
                     # print("reversal")
                     # check row above
                     stName= sheet.iat[rowIdx - 1, 0]
                     if pd.isna(stName) or not str(stName).strip():
                         stName = sheet.iat[rowIdx - 2, 0]
+                    
+                    stName = self.events[-1].atStation
                 
                 # check arrival and departure
                 # at a time cell, is it near an A or D cell.
@@ -467,7 +489,7 @@ class Service:
 
                 # assuming A always before D
                 if isATime:
-                    tArr = str(cell).strip()
+                    tArr = str(tCell).strip()
                     e1 = StationEvent(stName, self, tArr, EventType.ARRIVAL)
                     # assert next time is a D time
                     isDTime = True if sheet.iat[rowIdx+1, 1] == "D" else False
@@ -490,7 +512,7 @@ class Service:
                     # arrival-departure events will be with a single time.
                     # we assume the gap between arrival departure is small, 
                     # but arrival time is specified in the wtt.
-                    time = str(cell).strip()
+                    time = str(tCell).strip()
                     e = StationEvent(stName, self, time, EventType.ARRIVAL)
                     self.events.append(e)
 
@@ -548,7 +570,10 @@ class Station:
 # 2. Pick a rake id. For that rake, begin 
 class TimeTableParser:
     rCentralRailwaysPattern = re.compile(r'^[Cc]\.\s*[Rr][Ll][Yy]\.?$')
-    rTimePattern = re.compile(r'^(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d)?$')
+    rTimePattern = re.compile(
+        r'(?:\d{1,2}/\d{1,2}/\d{2,4}\s+)?'   # optional date prefix
+        r'(?P<time>[01]?\d|2[0-3]):[0-5]\d(?::[0-5]\d)?$'  # capture only time
+    )
     rServiceIDPattern = re.compile(r'^\s*\d{5}(?:\b.*)?$', re.IGNORECASE)
     rLinkNamePattern = re.compile(r'^\s*([A-Z]{1,2})\s*(?:\u2020)?\s*$', re.UNICODE) # only match A AK with dagger, i.e. start links
     rEtyPattern = re.compile(r'\bETY\s*\d+\b', re.IGNORECASE)
@@ -560,6 +585,17 @@ class TimeTableParser:
     rakeLinkNames = [] 
 
     wttSheets = [] # upsheet, downsheet, summary sheets
+
+    # From https://bhaaratham.com/list-of-stations-mumbai-local-train/
+    distanceMap = {
+        "CHURCHGATE": 0, "MARINE LINES": 2, "CHARNI ROAD": 3, "GRANT ROAD": 4,
+        "M'BAI CENTRAL(L)": 5, "MAHALAKSHMI": 6, "LOWER PAREL": 8, "PRABHADEVI": 9,
+        "DADAR": 11, "MATUNGA ROAD": 11.5, "MAHIM JN.": 12, "BANDRA": 15,
+        "KHAR ROAD": 17, "SANTA CRUZ": 18, "VILE PARLE": 20, "ANDHERI": 22,
+        "JOGESHWARI": 24, "RAM MANDIR": 25.5, "GOREGAON": 27, "MALAD": 30, "KANDIVALI": 32,
+        "BORIVALI": 34, "DAHISAR": 37, "MIRA ROAD": 40, "BHAYANDAR": 44,
+        "NAIGAON": 48, "VASAI ROAD": 52, "NALLASOPARA": 56, "VIRAR": 60
+    }
 
     def __init__(self, fpWttXlsx=None, fpWttSummaryXlsx=None):
         self.wtt = TimeTable()
@@ -745,6 +781,9 @@ class TimeTableParser:
             st = Station(idx, stName.upper())
             # print(f"Registering station {st.name}, idx {st.id}")
             self.wtt.stations[st.name] = st 
+            
+            st.dCCGkm = TimeTableParser.distanceMap[st.name]
+            print(f"station {st.name} distance from CCG: {st.dCCGkm}")
         
         # create station map
         TimeTableParser.stationMap = {
@@ -759,7 +798,8 @@ class TimeTableParser:
             "BVI": self.wtt.stations["BORIVALI"],
             "CSTM": Station(43, "CHATTRAPATI SHIVAJI MAHARAJ TERMINUS"),
             "CSMT": Station(44, "CHATTRAPATI SHIVAJI MAHARAJ TERMINUS"),
-            "PNVL": Station(45, "PANVEL")
+            "PNVL": Station(45, "PANVEL"),
+            "MX": self.wtt.stations["MAHALAKSHMI"]
         }
 
         TimeTableParser.stations = self.wtt.stations
@@ -911,7 +951,7 @@ class TimeTableParser:
         '''Every service must start at some yard/carshed. These
         are specified in the WTT-Summary Sheet.'''
         pass
-
+    
     def extractLinkedToNext(self, serviceCol, direction):
         '''Find the linked service (if any) following a 'Reversed as' entry.'''
         # dropNa

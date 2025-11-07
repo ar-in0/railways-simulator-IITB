@@ -232,7 +232,7 @@ class Simulator:
                 return html.Div([
                     html.Img(src="/assets/excel-icon.png",
                             style={"width": "28px", "height": "28px", "marginBottom": "6px"}),
-                    html.Div("WTT Summary",
+                    html.Div("WTT Link Summary",
                             style={"fontWeight": "500", "color": "#334155", "fontSize": "14px"}),
                     html.Div("Click to upload",
                             style={"fontSize": "11px", "color": "#94a3b8", "marginTop": "4px"})
@@ -324,84 +324,122 @@ class Simulator:
                 return error_msg, go.Figure()
 
     def visualizeLinks3D(self):
-        # pick first valid rake cycle
         rakecycles = [rc for rc in self.parser.wtt.rakecycles if rc.servicePath]
         if not rakecycles:
             raise ValueError("No valid rakecycles found.")
-        rc = rakecycles[0]
 
-        # === collect stations in travel order from the WTT master list ===
-        # wtt.stations is likely a dict: { 'STATION_CODE': StationObject }
-        # so we take its keys (already uppercase codes)
-        stations = list(self.parser.wtt.stations.keys())
-        stations = [s.strip().upper() for s in stations]
-        station_to_y = {st: i for i, st in enumerate(stations)}
+        distanceMap = tt.TimeTableParser.distanceMap
+        stationToY = {st.upper(): distanceMap[st.upper()] for st in distanceMap}
 
-        # === prepare data ===
-        x, y, z = [], [], []
-        for svc in rc.servicePath:
-            for ev in svc.events:
-                if not ev.atTime or not ev.atStation:
-                    continue
-                t_str = ev.atTime.strip()
-                try:
-                    t = datetime.strptime(t_str, "%H:%M:%S")
-                except:
-                    try:
-                        t = datetime.strptime(t_str, "%H:%M")
-                    except:
+        all_traces = []
+        z_labels = []
+        z_offset = 0
+
+        for rc in rakecycles:
+            x, y, z, stationLabels = [], [], [], []
+
+            for svc in rc.servicePath:
+                for ev in svc.events:
+                    if not ev.atTime or not ev.atStation:
                         continue
-                minutes = t.hour * 60 + t.minute + t.second / 60
 
-                st_name = str(ev.atStation).strip().upper()
-                if st_name not in station_to_y:
-                    print("⚠ Skipping unmapped station:", st_name)
-                    continue
+                    tStr = ev.atTime.strip()
+                    try:
+                        t = datetime.strptime(tStr, "%H:%M:%S")
+                    except:
+                        try:
+                            t = datetime.strptime(tStr, "%H:%M")
+                        except:
+                            continue
 
-                x.append(minutes)
-                y.append(station_to_y[st_name])
-                z.append(0)
+                    minutes = t.hour * 60 + t.minute + t.second / 60
+                    if minutes < 150:
+                        minutes += 1440
 
-        # === make plot ===
-        fig = go.Figure(
-            data=[go.Scatter3d(
-                x=x, y=y, z=z,
-                mode="lines+markers",
-                line=dict(color="#2a6fd3", width=4),
-                marker=dict(size=4, color="#2a6fd3"),
-                hovertext=[f"{stations[yy]} @ {int(xx//60):02d}:{int(xx%60):02d}" for xx, yy in zip(x, y)],
-                hoverinfo="text"
-            )]
-        )
+                    stName = str(ev.atStation).strip().upper()
+                    if stName not in stationToY:
+                        print("Skipping unmapped station:", stName)
+                        continue
 
-        # === correct reversed time axis and viewing angle ===
+                    x.append(minutes)
+                    y.append(stationToY[stName])
+                    z.append(z_offset)
+                    stationLabels.append(stName)
+            
+            if rc.rake.isAC:
+                color = "rgba(66,133,244,0.8)"   # Google Sheets blue
+            else:
+                color = "rgba(90,90,90,0.55)"    # Light transparent gray
+
+            if x:
+                all_traces.append(
+                    go.Scatter3d(
+                        x=x, y=y, z=z,
+                        mode="lines+markers",
+                        line=dict(color=color),
+                        marker=dict(size=1, color=color),
+                        # line=dict(color="#444444"),
+                        # marker=dict(size=2, color="#444444"),
+                        hovertext=[
+                            f"{rc.linkName}: {st} @ {(int(xx)//60) % 24:02d}:{int(xx%60):02d}"
+                            for xx, st in zip(x, stationLabels)
+                        ],
+                        hoverinfo="text",
+                        name=rc.linkName
+                    )
+                )
+                z_labels.append((z_offset, rc.linkName))
+                z_offset += 40  # increment z for next rakecycle
+
+        tickPositions = list(range(150, 1591, 120))
+        tickLabels = [f"{(t // 60) % 24:02d}:{int(t % 60):02d}" for t in tickPositions]
+
+        yTickVals = list(stationToY.values())
+        yTickText = list(stationToY.keys())
+
+        fig = go.Figure(data=all_traces)
+
         fig.update_layout(
+            font=dict(size=12, color="#CCCCCC"),
             scene=dict(
                 xaxis=dict(
-                    title="Time (minutes →)",
-                    
+                    showgrid=True,
+                    showspikes=False,
+                    title="Time of Day →",
+                    range=[150, 1590],
+                    tickvals=tickPositions,
+                    ticktext=tickLabels,
                 ),
                 yaxis=dict(
-                    title="Station (distance ↑)",
-                    tickvals=list(range(len(stations))),
-                    ticktext=stations
+                    showgrid=True,
+                    showspikes=False,
+                    title="Distance from Churchgate (km)",
+                    tickvals=yTickVals,
+                    ticktext=yTickText,
+                    range=[min(yTickVals), max(yTickVals)],
+                    autorange=False
                 ),
-                zaxis=dict(visible=False),
+                zaxis=dict(
+                    showgrid=True,
+                    showspikes=False,
+                    title="Rake Cycle",
+                    tickvals=[zv for zv, _ in z_labels],
+                    ticktext=[zl for _, zl in z_labels],
+                ),
                 camera=dict(
-                    eye=dict(x=1.8, y=0.01, z=1.2),  # how far you are from the scene
-                    up=dict(x=0, y=1, z=0),          # z-axis = "up"
+                    eye=dict(x=1.6, y=0.01, z=1.4),
+                    up=dict(x=0, y=1, z=0),
                     center=dict(x=0, y=0, z=0)
                 ),
-                # aspectmode="manual",
-                # aspectratio=dict(x=2, y=3, z=0.2)
             ),
             width=1300,
             height=800,
-            margin=dict(l=10, r=10, b=10, t=40),
-            # title=f"Rake Cycle {rc.linkName} — Time–Distance Plot"
+            margin=dict(t=5, l=5, b=5, r=5),
         )
 
         return fig
+
+
 
     def run(self):
         self.app.run(debug=True, port=8051)
