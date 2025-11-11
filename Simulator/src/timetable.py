@@ -263,17 +263,18 @@ class TimeTable:
         # Then for every service in every rakecycle, parse the stationcol 
         # to extract timings and create StationEvents.
         for rc in self.rakecycles:
-            print(rc.servicePath)
+            # print(rc.servicePath)
             if not rc.servicePath:
-                print(rc)
+                # print(rc)
+                pass
             for svc in rc.servicePath:
                 svc.generateStationEvents()
                 assert(svc.events)
-
+                svc.initStation = self.stations[svc.events[0].atStation]   
+                svc.finalStation = self.stations[svc.events[-1].atStation]
 
         # assign rakes to rakecycles
         self.assignRakes()
-
 
         # for rc in self.rakecycles:
         #     self.generateRakeCyclePath(rc) 
@@ -354,6 +355,8 @@ class RakeCycle:
         
         # [list of services in path]. Service contains stationevents.
         self.servicePath = None
+
+        self.render = True # render each rakecycle
 
     
     def __repr__(self):
@@ -480,6 +483,8 @@ class Service:
                     
                     stName = self.events[-1].atStation
                 
+                stName = stName.strip().upper()
+                
                 # check arrival and departure
                 # at a time cell, is it near an A or D cell.
                 # if so, there is some dwell.
@@ -516,9 +521,9 @@ class Service:
                     e = StationEvent(stName, self, time, EventType.ARRIVAL)
                     self.events.append(e)
 
-        print(f"For service {self.serviceId}, events are:")
-        for ev in self.events:
-            print(f"{ev.atStation}: {ev.atTime}")
+        # print(f"For service {self.serviceId}, events are:")
+        # for ev in self.events:
+        #     print(f"{ev.atStation}: {ev.atTime}")
                     
     def __repr__(self):
         sid = ','.join(str(s) for s in self.serviceId) if self.serviceId else 'None'
@@ -628,7 +633,7 @@ class TimeTableParser:
         instance.xlsxToDfFromFileObj(wttFileObj)
         instance.registerStations()
         instance.registerServices()
-        instance.parseWttSummaryFromFileObj(summaryFileObj)
+        instance.parseWttSummaryFromFileObj(summaryFileObj) # creates rakecycles without timing info
         instance.wtt.suburbanServices = instance.isolateSuburbanServices()
         return instance
 
@@ -666,7 +671,7 @@ class TimeTableParser:
             if any(sid in suburbanIds for sid in s.serviceId):
                 suburbanServices.append(s)
 
-        # print(f"\nSuburban services identified: {len(suburbanServices)} / {len(self.wtt.upServices) + len(self.wtt.downServices)}")
+        print(f"\nSuburban services identified: {len(suburbanServices)} / {len(self.wtt.upServices) + len(self.wtt.downServices)}")
         return suburbanServices
 
     def parseRakeLinks(self, sheet):
@@ -718,7 +723,7 @@ class TimeTableParser:
                 if not service:
                     rc.undefinedIds.append((linkName, sid)) # but we also mark undefined services
 
-            self.wtt.rakecycles.append(rc)
+            self.wtt.rakecycles.append(rc) # servicepaths not yet created.
 
         # summary
         if rc.undefinedIds:
@@ -910,7 +915,6 @@ class TimeTableParser:
                         station = self.wtt.stations[str(stName).strip()]
                         # print(f"Last station from time,: {str(stName).strip()}")
                         return station
-
 
             # print("Could not determine final station (no ARRL or valid time)")
             return station
@@ -1133,8 +1137,10 @@ class TimeTableParser:
             # print(f"Init station for {service.serviceId}: {service.initStation.name}")
 
             service.finalStation = self.extractFinalStation(clean, sheet)
-            if (service.finalStation):
-                print(f"Final Station for {service.serviceId}: {service.finalStation.name}")
+            # if (service.finalStation):
+            #     print(f"Final Station for {service.serviceId}: {service.finalStation.name}")
+            # else:
+            #     print(f"Could not find final station for {service.serviceId}")
 
             service.linkedTo = self.extractLinkedToNext(clean, direction)
             # print(f"Service {service.serviceId} linked to service: {service.linkedTo}")
