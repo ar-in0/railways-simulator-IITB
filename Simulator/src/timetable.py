@@ -10,6 +10,7 @@ import pandas as pd
 import re
 from collections import defaultdict
 import logging
+from datetime import datetime
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -207,7 +208,7 @@ class TimeTable:
 
         for path in self.allCyclesWtt:
             # print(f"rakecycle starting with service {path[0].serviceId} has length = {len(path)}")
-            sidpath = [s.serviceId[0] for s in path]
+            sidpath = [s.serviceId[0] for s in path] # from summary
             # print(sidpath)
 
         # need to link the paths to the rake linkNames
@@ -231,7 +232,7 @@ class TimeTable:
                 #     logger.debug("Mismatch between wtt and summary init")
                 #     logger.debug(f"summ: {str(rc.serviceIds[0])}, wtt: {str(path[0].serviceId[0])}")
             if not rc.servicePath:
-                logger.debug(f"summ: {str(rc.serviceIds[0])}, wtt: {str(path[0].serviceId[0])}")
+                logger.debug(f"Link {rc.linkName}: Summ starts with: {str(rc.serviceIds[0])}, wtt starts with: {str(path[0].serviceId[0])}")
                 # print(f"Issue with serviceIdpath: {rc.linkName}") # every rakecycle must be assigned its path by the end.
                 logger.warning(f"Unable to match rakelink {rc.linkName} to a wtt-derived service-path. Fixing...")
                 fixedPath = self.fixPath(rc)
@@ -273,6 +274,11 @@ class TimeTable:
                 svc.initStation = self.stations[svc.events[0].atStation]   
                 svc.finalStation = self.stations[svc.events[-1].atStation]
 
+                # calculate service distance
+                svc.computeLengthKm()
+                rc.lengthKm += svc.lengthKm
+            print(f"Length of {rc.linkName} = {rc.lengthKm} Km")
+
         # assign rakes to rakecycles
         self.assignRakes()
 
@@ -304,17 +310,31 @@ class TimeTable:
         cycles = self.rakecycles
         logger.debug("Removing inexact rakecycle matches.")
         for rc in cycles:
-            wttPath = [svc.serviceId[0] for svc in rc.servicePath]
             summaryPath = rc.serviceIds
+            wttPath = [svc.serviceId[0] for svc in rc.servicePath]
+
+            # check reduced path1
+            summaryPathRed1 = summaryPath[:-2]
+
+            # if theres a full match, GREAT.
+            # if not a full match, if theres an exact partial match 
+            # and the non-matches are ety-style sids, Also GREAT.
 
             if wttPath != summaryPath:
-                # print(rc)
-                # print(f"wttpath: {wttPath}")
-                # print(f"summarypath: {summaryPath}")
-                self.conflictingLinks.append(rc)
-        
+                # print("Inexact summary link and wtt link")
+                # print(f"{rc.linkName} wttpath: {wttPath}")
+                # print(f"{rc.linkName} summarypath: {summaryPath}")
+                if summaryPath[:-1] == wttPath:
+                    if "ETY" in str(summaryPath[-1]):
+                        continue
+                else:
+                    if summaryPath[:-2] == wttPath:
+                        if "ETY" in str(summaryPathRed1[-1]) and "ETY" in str(summaryPath[-1]):
+                            continue
+                self.conflictingLinks.append((rc, wttPath))
+                    
         for rc in self.conflictingLinks:
-            self.rakecycles.remove(rc)
+            self.rakecycles.remove(rc[0])
 
 class Rake:
     '''Physical rake specifications.'''
@@ -357,15 +377,19 @@ class RakeCycle:
         self.servicePath = None
 
         self.render = True # render each rakecycle
+        self.lengthKm = 0 # updated during generatecycles
 
     
     def __repr__(self):
         rake_str = self.rake.rakeId if self.rake else 'Unassigned'
         n_services = len(self.serviceIds)
-        start = self.startDepot if self.startDepot else '?'
-        end = self.endDepot if self.endDepot else '?'
+        start = self.servicePath[0].events[0].atStation if self.servicePath else '?'
+        end = self.servicePath[-1].events[-1].atStation if self.servicePath else '?'
+        # start = self.startDepot if self.startDepot else '?'
+        # end = self.endDepot if self.endDepot else '?'
 
-        return f"<RakeCycle {self.linkName} ({n_services} services) {start}->{end} rake:{rake_str}>"
+
+        return f"<RakeCycle {self.linkName} ({n_services} services, {self.lengthKm}Km) {start}->{end}>"
     
 # const
 # The service details must be stored first. After that, 
@@ -384,7 +408,8 @@ class RakeLinkStatus(Enum):
     INVALID = 'invalid'
 
 # initially we onl handle regular suburban trains
-# excluding dahanu road services
+# excluding dahanu road 
+# services
 class ServiceType(Enum):
     REGULAR = 'regular'
     STABLING = 'stabling'
@@ -434,8 +459,21 @@ class Service:
         # AC services have a date restriction
         # "multi-service" services have date restrictions.
         self.activeDates = set(Day) 
+        self.render = True
         
         # self.name = None
+    
+    def computeLengthKm(self):
+        l = 0
+        dprev = TimeTableParser.distanceMap[self.events[0].atStation]
+        for e in self.events[1:]:
+            stName = e.atStation
+            dCCGKm = TimeTableParser.distanceMap[stName]
+            d = abs(dprev - dCCGKm)
+            l += d
+            dprev = dCCGKm
+        # assert(l > 0)
+        self.lengthKm = l
 
     def generateStationEvents(self):
         sheet = None
@@ -552,10 +590,29 @@ class StationEvent:
     def __init__(self, st, sv, time, type):
         self.atStation = st
         self.ofService = sv
-        self.atTime = time
+        self.atTime = self._timeToMinutes(time)
 
         self.platform = None
         self.eType = None
+        self.render = True
+    
+    def _timeToMinutes(self, time_str):
+        """Convert time string to minutes since midnight, with wrap-around."""
+        if not time_str:
+            return None
+        try:
+            t = datetime.strptime(time_str.strip(), "%H:%M:%S")
+        except:
+            try:
+                t = datetime.strptime(time_str.strip(), "%H:%M")
+            except:
+                return None
+        
+        minutes = t.hour * 60 + t.minute + t.second / 60
+        if minutes < 165:  # 2:45 AM wrap-around
+            minutes += 1440
+        return minutes
+
 
 # Activity at a station is dynamic with time
 # The activity is studied to generate rake-cycles
@@ -727,7 +784,7 @@ class TimeTableParser:
 
         # summary
         if rc.undefinedIds:
-            # print(f"\n{len(rc.undefinedIds)} service IDs from summary sheet not found in detailed WTT:")
+            print(f"\n{len(rc.undefinedIds)} service IDs from summary sheet not found in detailed WTT:")
             for linkName, sid in rc.undefinedIds:
                 print(f" ** Link {linkName}: Service {sid}")
         else:
@@ -788,7 +845,7 @@ class TimeTableParser:
             self.wtt.stations[st.name] = st 
             
             st.dCCGkm = TimeTableParser.distanceMap[st.name]
-            print(f"station {st.name} distance from CCG: {st.dCCGkm}")
+            # print(f"station {st.name} distance from CCG: {st.dCCGkm}")
         
         # create station map
         TimeTableParser.stationMap = {
@@ -1081,7 +1138,7 @@ class TimeTableParser:
         for cell in serviceCol:
             cell = cell.strip()
             if (isAC == 1): return True  
-            if ("Air" in cell or "Condition" in cell):
+            if ("Air" in cell or "Condition" in cell or "AC" in cell):
                 isAC += 1
         return False
     

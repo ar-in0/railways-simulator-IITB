@@ -8,6 +8,9 @@ import base64
 import plotly.graph_objs as go
 import copy
 from datetime import datetime
+from dataclasses import dataclass, field
+from typing import List, Optional, Tuple
+from timetable import Direction
 
 from enum import Enum
 
@@ -15,24 +18,16 @@ class FilterType(Enum):
     RAKELINK = 'rakelink'
     SERVICE = 'service'
 
+
+@dataclass
 class FilterQuery:
-    def __init__(self):
-        self.type = None
-
-        # stations
-        self.startStation = None
-        self.endStation = None
-
-        # passing through this list of stations
-        # atleast once
-        self.passingThrough = []
-        self.inDirection = None # none if rakelink filter, radiobutton value if service filter
-
-        # time
-        self.inTimePeriod = None # a time range
-
-        # ac/non ac
-        self.ac = None
+    type: Optional[FilterType] = None
+    startStation: Optional[str] = None
+    endStation: Optional[str] = None
+    passingThrough: List[str] = field(default_factory=list)
+    inDirection: Optional[Direction] = None  # e.g. 'UP', 'DOWN', None
+    inTimePeriod: Optional[Tuple[int, int]] = None  # e.g. (5, 12)
+    ac: Optional[bool] = None  # true, false
 
 class Simulator:
     def __init__(self):
@@ -47,244 +42,418 @@ class Simulator:
         self.linkTimingsCreated = False
 
         self.query = FilterQuery()
+        self.query.type = FilterType.RAKELINK
     
     def drawLayout(self):
-        return html.Div(
-            [
-                # Hidden store (optional)
-                dcc.Store(id="app-state"),
+            return html.Div(
+                [
+                    # Hidden store (optional)
+                    dcc.Store(id="app-state"),
 
-                # === LEFT SIDEBAR ===
-                html.Div(
-                    [
-                        # Title + Subtitle
-                        html.Div(
-                            [
-                                dcc.Markdown(
-                                    """
-                                    ### Western Railways – Timetable Visualizer
-                                    """.replace("  ", ""),
-                                    className="title",
-                                ),
-                                dcc.Markdown(
-                                    """
-                                    Interactive tool to analyze rake-links during migration to AC.
-                                    """.replace("  ", ""),
-                                    className="subtitle",
-                                ),
-                            ]
-                        ),
-
-                        html.Hr(),
-                        html.Div([
-                            dcc.Markdown("##### Upload Required Files", className="subtitle"),
-                        ], style={"padding": "8px 0px"}),
-
-                        # Upload components
-                        dbc.Row([
-                            # Upload Full WTT
-                            dbc.Col([
-                                dcc.Upload(
-                                    id="upload-wtt-inline",
-                                    children=html.Div([
-                                        html.Img(
-                                            src="/assets/excel-icon.png",
-                                            style={
-                                                "width": "28px",
-                                                "height": "28px",
-                                                "marginBottom": "6px"
-                                            }
-                                        ),
-                                        html.Div("Full WTT", 
-                                                style={"fontWeight": "500", "color": "#334155", "fontSize": "14px"}),
-                                        html.Div("Click to upload",
-                                                style={"fontSize": "11px", "color": "#94a3b8", "marginTop": "4px"})
-                                    ], className="text-center"),
-                                    style={
-                                        "height": "140px",
-                                        "borderWidth": "2px",
-                                        "borderStyle": "dashed",
-                                        "borderRadius": "12px",
-                                        "borderColor": "#cbd5e1",
-                                        "display": "flex",
-                                        "alignItems": "center",
-                                        "justifyContent": "center",
-                                        "cursor": "pointer",
-                                        "transition": "all 0.2s ease",
-                                    },
-                                    multiple=False
-                                )
-                            ], xs=12, md=6, className="mb-3 mb-md-0"),
-
-                            # Upload Rake-Link Summary
-                            dbc.Col([
-                                dcc.Upload(
-                                    id="upload-summary-inline",
-                                    children=html.Div([
-                                        html.Img(
-                                            src="/assets/excel-icon.png",
-                                            style={
-                                                "width": "28px",
-                                                "height": "28px",
-                                                "marginBottom": "6px"
-                                            }
-                                        ),
-                                        html.Div("Rake-Link Summary", 
-                                                style={"fontWeight": "500", "color": "#334155", "fontSize": "14px"}),
-                                        html.Div("Click to upload",
-                                                style={"fontSize": "11px", "color": "#94a3b8", "marginTop": "4px"})
-                                    ], className="text-center"),
-                                    style={
-                                        "height": "140px",
-                                        "borderWidth": "2px",
-                                        "borderStyle": "dashed",
-                                        "borderRadius": "12px",
-                                        "borderColor": "#cbd5e1",
-                                        "display": "flex",
-                                        "alignItems": "center",
-                                        "justifyContent": "center",
-                                        "cursor": "pointer",
-                                        "transition": "all 0.2s ease",
-                                    },
-                                    multiple=False
-                                )
-                            ], xs=12, md=6)
-                        ], style={"padding": "0px 35px", "marginBottom": "20px"}),
-
-                        html.Hr(),  
-
-                        # Filters
-                        html.Div([
-                            html.Div(id="filter-overlay", style={"display": "none"}), 
-                        html.Div([
-                            dcc.Markdown("##### Rake Link Filters", className="subtitle"),
-                        ], style={"padding": "0px 0px"}),
-
-                        dbc.Card(
-                            [
-                                dbc.CardBody([
-                                    # Start & End Stations side by side
-                                    dbc.Row([
-                                        dbc.Col([
-                                            html.Label("Start Station", className="criteria-label"),
-                                            dcc.Dropdown(
-                                                id="start-station",
-                                                # options=[{"label": s, "value": s} for s in ["Churchgate", "Bandra", "Borivali", "Virar"]],
-                                                options=[],
-                                                placeholder="Select Station...",
-                                                className="mb-3",
-                                                persistence = True,
-                                                persistence_type = 'session'
-                                            )
-                                        ], width=6),
-
-                                        dbc.Col([
-                                            html.Label("End Station", className="criteria-label"),
-
-                                            dcc.Dropdown(
-                                                id="end-station",
-                                                # options=[{"label": s, "value": s} for s in self.parser.wtt.stations],
-                                                options=[],
-                                                placeholder="Select Station...",
-                                                className="mb-3",
-                                            )
-                                        ], width=6),
-                                    ], className="gx-2"),
-
-                                    # Intermediate Stations full width below
-                                    html.Label("Passing Through", className="criteria-label"),
-                                    dcc.Dropdown(
-                                        id="intermediate-stations",
-                                        options=[],
-                                        multi=True,
-                                        placeholder="Add intermediate stations",
-                                        className="mb-3",
+                    # === LEFT SIDEBAR ===
+                    html.Div(
+                        [
+                            # Title + Subtitle
+                            html.Div(
+                                [
+                                    dcc.Markdown(
+                                        """
+                                        ### Western Railways – Timetable Visualizer
+                                        """.replace("  ", ""),
+                                        className="title",
                                     ),
-                                    html.Label("In time period", className="criteria-label"),
-                                    dcc.RangeSlider(
-                                        id="time-range-slider",
-                                        min=0,
-                                        max=1440,  # minutes in a full day
-                                        step=15,   # 15-min precision
-                                        value=[165, 1605],  # default: 2:45 AM to 2:45 AM next day
-                                        marks={
-                                            i: f"{(i // 60):02d}:{(i % 60):02d}" for i in range(0, 1441, 120)
+                                    dcc.Markdown(
+                                        """
+                                        Interactive tool to analyze rake-links during migration to AC.
+                                        """.replace("  ", ""),
+                                        className="subtitle",
+                                    ),
+                                ]
+                            ),
+
+                            html.Hr(),
+                            html.Div([
+                                dcc.Markdown("##### Upload Required Files", className="subtitle"),
+                            ], style={"padding": "8px 0px"}),
+
+                            # Upload components
+                            dbc.Row([
+                                # Upload Full WTT
+                                dbc.Col([
+                                    dcc.Upload(
+                                        id="upload-wtt-inline",
+                                        children=html.Div([
+                                            html.Img(
+                                                src="/assets/excel-icon.png",
+                                                style={
+                                                    "width": "28px",
+                                                    "height": "28px",
+                                                    "marginBottom": "6px"
+                                                }
+                                            ),
+                                            html.Div("Full WTT", 
+                                                    style={"fontWeight": "500", "color": "#334155", "fontSize": "14px"}),
+                                            html.Div("Click to upload",
+                                                    style={"fontSize": "11px", "color": "#94a3b8", "marginTop": "4px"})
+                                        ], className="text-center"),
+                                        style={
+                                            "height": "140px",
+                                            "borderWidth": "2px",
+                                            "borderStyle": "dashed",
+                                            "borderRadius": "12px",
+                                            "borderColor": "#cbd5e1",
+                                            "display": "flex",
+                                            "alignItems": "center",
+                                            "justifyContent": "center",
+                                            "cursor": "pointer",
+                                            "transition": "all 0.2s ease",
                                         },
-                                        tooltip={"placement": "bottom", "always_visible": False},
-                                        allowCross=False,
+                                        multiple=False
                                     )
-                                ])
-                            ],
-                            className="criteria-card mb-4",
-                            style={"margin": "0px 0px"}  # Add consistent margin
-                        ),
-                    ], style={"position": "relative"}),
+                                ], xs=12, md=6, className="mb-3 mb-md-0"),
 
-                        # Generate button
-                        html.Div(
-                            [
-                                html.Button(
-                                    "Generate Rake Cycles",
-                                    id="generate-button",
-                                    n_clicks=0,
-                                    className="generate-button",
-                                    disabled=True,
+                                # Upload Rake-Link Summary
+                                dbc.Col([
+                                    dcc.Upload(
+                                        id="upload-summary-inline",
+                                        children=html.Div([
+                                            html.Img(
+                                                src="/assets/excel-icon.png",
+                                                style={
+                                                    "width": "28px",
+                                                    "height": "28px",
+                                                    "marginBottom": "6px"
+                                                }
+                                            ),
+                                            html.Div("Rake-Link Summary", 
+                                                    style={"fontWeight": "500", "color": "#334155", "fontSize": "14px"}),
+                                            html.Div("Click to upload",
+                                                    style={"fontSize": "11px", "color": "#94a3b8", "marginTop": "4px"})
+                                        ], className="text-center"),
+                                        style={
+                                            "height": "140px",
+                                            "borderWidth": "2px",
+                                            "borderStyle": "dashed",
+                                            "borderRadius": "12px",
+                                            "borderColor": "#cbd5e1",
+                                            "display": "flex",
+                                            "alignItems": "center",
+                                            "justifyContent": "center",
+                                            "cursor": "pointer",
+                                            "transition": "all 0.2s ease",
+                                        },
+                                        multiple=False
+                                    )
+                                ], xs=12, md=6)
+                            ], style={"padding": "0px 35px", "marginBottom": "20px"}),
+
+                            html.Hr(),  
+
+                            # Filters
+                            html.Div([
+                                html.Div([
+                                    dcc.Markdown("##### Filters", className="subtitle"),
+                                ], style={"padding": "0px 0px"}),
+
+                                # --- SHARED AC FILTER ---
+                                # Moved AC selector here, outside the tabs
+                                dbc.RadioItems(
+                                    id="ac-selector", # ID remains the same
+                                    options=[
+                                        {"label": "All", "value": "all"},
+                                        {"label": "AC", "value": "ac"},
+                                        {"label": "Non-AC", "value": "nonac"},
+                                    ],
+                                    value="all",
+                                    inline=True,
+                                    inputStyle={"marginRight": "6px"},
+                                    labelStyle={"marginRight": "12px", "fontSize": "13px"},
+                                    style={"marginTop": "8px", "marginBottom": "8px", "padding": "0px 35px"}
+                                ),
+
+                                # --- TABBED FILTERS ---
+                                html.Div(id="filter-overlay", style={"display": "none"}), 
+                                dbc.Tabs(
+                                    id="filter-tabs",
+                                    active_tab="tab-rakelink", # Default to rake link
+                                    children=[
+                                        # --- TAB 1: RAKE LINK FILTERS (Original IDs) ---
+                                        dbc.Tab(
+                                            label="Rake Link",
+                                            tab_id="tab-rakelink",
+                                            children=dbc.Card(
+                                                [
+                                                    dbc.CardBody([
+                                                        # Start & End Stations side by side
+                                                        dbc.Row([
+                                                            dbc.Col([
+                                                                html.Label("Start Station", className="criteria-label"),
+                                                                dcc.Dropdown(
+                                                                    id="start-station", # Original ID
+                                                                    options=[],
+                                                                    placeholder="Select Station...",
+                                                                    className="mb-3",
+                                                                    persistence = True,
+                                                                    persistence_type = 'session'
+                                                                )
+                                                            ], width=6),
+
+                                                            dbc.Col([
+                                                                html.Label("End Station", className="criteria-label"),
+                                                                dcc.Dropdown(
+                                                                    id="end-station", # Original ID
+                                                                    options=[],
+                                                                    placeholder="Select Station...",
+                                                                    className="mb-3",
+                                                                )
+                                                            ], width=6),
+                                                        ], className="gx-2"),
+
+                                                        # Intermediate Stations full width below
+                                                        html.Label("Passing Through", className="criteria-label"),
+                                                        dcc.Dropdown(
+                                                            id="intermediate-stations", # Original ID
+                                                            options=[],
+                                                            multi=True,
+                                                            placeholder="Add intermediate stations",
+                                                            className="mb-3",
+                                                        ),
+                                                        html.Label("In time period", className="criteria-label"),
+                                                        dcc.RangeSlider(
+                                                            id="time-range-slider", # Original ID
+                                                            min=0,
+                                                            max=1440,
+                                                            step=15,
+                                                            value=[165, 1605],
+                                                            marks={
+                                                                i: f"{(i // 60):02d}:{(i % 60):02d}" for i in range(0, 1441, 120)
+                                                            },
+                                                            tooltip={"placement": "bottom", "always_visible": False},
+                                                            allowCross=False,
+                                                        ),
+                                                    ])
+                                                ],
+                                                className="criteria-card mb-4",
+                                                style={"margin": "0px 0px"}
+                                            )
+                                        ),
+
+                                        # --- TAB 2: SERVICE FILTERS (New IDs) ---
+                                        dbc.Tab(
+                                            label="Service",
+                                            tab_id="tab-service",
+                                            children=dbc.Card(
+                                                [
+                                                    dbc.CardBody([
+                                                        # RE-ID'd components for Services
+                                                        dbc.Row([
+                                                            dbc.Col([
+                                                                html.Label("Start Station", className="criteria-label"),
+                                                                dcc.Dropdown(id="start-station_service", # New ID
+                                                                            options=[],
+                                                                            placeholder="Select Station..."),
+                                                            ], width=6),
+                                                            dbc.Col([
+                                                                html.Label("End Station", className="criteria-label"),
+                                                                dcc.Dropdown(id="end-station_service", # New ID
+                                                                            options=[],
+                                                                            placeholder="Select Station..."),
+                                                            ], width=6),
+                                                        ], className="gx-2"),
+html.Div([
+    html.Label("Passing Through", className="criteria-label me-2"),
+
+    # --- Dropdown + Toggles in same line ---
+    html.Div([
+        dcc.Dropdown(
+            id="intermediate-stations_service",
+            options=[],
+            multi=True,
+            placeholder="Add intermediate stations",
+            style={"flex": "1"},
+        ),
+
+        # Toggle buttons inline to the right of dropdown
+        html.Div([
+            # html.Label("Direction", className="criteria-label me-2"),
+            dbc.Checklist(
+                options=[
+                    {"label": "UP", "value": "UP"},
+                    {"label": "DOWN", "value": "DOWN"},
+                ],
+                value=["UP", "DOWN"],  # default both selected
+                id="direction-selector",
+                inline=True,
+                switch=True,
+                className="ms-3 mb-0",  # spacing between dropdown and toggles
+            )
+        ])
+    ], className="d-flex align-items-center gap-2 mb-3", style={"width": "100%"}),
+]),
+                                                        html.Label("In time period", className="criteria-label"),
+                                                        dcc.RangeSlider(
+                                                            id="time-range-slider_service", # New ID
+                                                            min=0,
+                                                            max=1440,
+                                                            step=15,
+                                                            value=[165, 1605],
+                                                            marks={
+                                                                i: f"{(i // 60):02d}:{(i % 60):02d}" for i in range(0, 1441, 120)
+                                                            },
+                                                            tooltip={"placement": "bottom", "always_visible": False},
+                                                            allowCross=False,
+                                                        ),
+                                                        
+                                                    
+                                                        # html.Label("Service Type", className="criteria-label", style={"marginTop": "16px"}),
+                                                        # dbc.RadioItems(
+                                                        #     id="service-type-radio",
+                                                        #     options=[
+                                                        #         {"label": "All", "value": "all"},
+                                                        #         {"label": "Fast", "value": "fast"},
+                                                        #         {"label": "Slow", "value": "slow"},
+                                                        #     ],
+                                                        #     value="all",
+                                                        #     inline=True,
+                                                        #     inputStyle={"marginRight": "6px"},
+                                                        #     labelStyle={"marginRight": "12px", "fontSize": "13px"},
+                                                        # )
+                                                    ])
+                                                ],
+                                                className="criteria-card mb-4",
+                                                style={"margin": "0px 0px"}
+                                            )
+                                        ),
+                                    ],
+                                    className="mb-4" # Add margin to separate from Generate button
                                 )
-                            ],
-                            style={"padding": "0px 35px"}  # Match other elements
-                        ),
-                    ],
-                    className="four columns sidebar",
-                ),
+                            ], style={"position": "relative"}),
 
-                # === RIGHT PANEL ===
-                html.Div(
-                    [
-                        html.Div(id="status-div", className="text-box"),
-                        dcc.Graph(id="rake-3d-graph", style={"height": "75vh"}),
-                    ],
-                    className="eight columns",
-                    id="page",
-                ),
-            ],
-            className="row flex-display",
-            style={"height": "100vh"},
-        )
+                            # Generate button
+                            html.Div(
+                                [
+                                    html.Button(
+                                        "Generate",
+                                        id="generate-button",
+                                        n_clicks=0,
+                                        className="generate-button",
+                                        disabled=True,
+                                    )
+                                ],
+                                style={"padding": "0px 35px"}  # Match other elements
+                            ),
+                        ],
+                        className="four columns sidebar",
+                    ),
+
+                    # === RIGHT PANEL ===
+                    html.Div(
+                        [
+                            html.Div(id="status-div", className="text-box"),
+                            html.Div(
+                                [
+                                    dbc.Button(
+                                        "Export Summary",
+                                        id="export-button",
+                                        color="secondary",
+                                        outline=True,
+                                        className="mt-2 mb-2",
+                                        disabled=True,
+                                    )
+                                ],
+                                className="d-flex justify-content-end", # Aligns button to the right
+                                style={"paddingRight": "48px"} # Small padding
+                            ),
+                            dcc.Download(id="download-report"),
+                            dcc.Graph(id="rake-3d-graph", style={"height": "75vh"}),
+                        ],
+                        className="eight columns",
+                        id="page",
+                    ),
+                ],
+                className="row flex-display",
+                style={"height": "100vh"},
+            )
 
     def initCallbacks(self):
         self._initFileUploadCallbacks()
         self._initButtonCallbacks()
         self._initFilterQueryCallbacks() 
-    
+
     def _initFilterQueryCallbacks(self):
         '''Each UI filter updates self.query attributes directly.'''
 
+        # ---------------------------------------------------------------------
+        # Helper: handles both rakelink & service inputs in one place
+        # ---------------------------------------------------------------------
+        def _update_query_field(ctx, field, value_rakelink, value_service=None):
+            """Update a FilterQuery field depending on which input triggered."""
+            if not ctx.triggered:
+                return None
+            trigger = ctx.triggered[0]['prop_id'].split('.')[0]
+
+            # Choose correct source
+            if trigger.endswith('_service'):
+                setattr(self.query, field, value_service)
+            else:
+                setattr(self.query, field, value_rakelink)
+            return None
+
         @self.app.callback(
             Input('start-station', 'value'),
+            Input('start-station_service', 'value'),
         )
-        def update_start_station(value):
-            self.query.startStation = value
-            return None
+        def update_start_station(value_rakelink, value_service):
+            return _update_query_field(callback_context, 'startStation', value_rakelink, value_service)
 
         @self.app.callback(
             Input('end-station', 'value'),
+            Input('end-station_service', 'value'),
         )
-        def update_end_station(value):
-            self.query.endStation = value
-            return None
+        def update_end_station(value_rakelink, value_service):
+            return _update_query_field(callback_context, 'endStation', value_rakelink, value_service)
 
         @self.app.callback(
             Input('intermediate-stations', 'value'),
+            Input('intermediate-stations_service', 'value'),
         )
-        def update_intermediate_stations(value):
-            self.query.passingThrough = value or []
-            return None
+        def update_passing_through(value_rakelink, value_service):
+            v1 = value_rakelink or []
+            v2 = value_service or []
+            return _update_query_field(callback_context, 'passingThrough', v1, v2)
 
         @self.app.callback(
             Input('time-range-slider', 'value'),
+            Input('time-range-slider_service', 'value'),
         )
-        def update_time_period(value):
-            self.query.inTimePeriod = value
+        def update_time_period(value_rakelink, value_service):
+            return _update_query_field(callback_context, 'inTimePeriod', value_rakelink, value_service)
+
+        @self.app.callback(
+            Input('ac-selector', 'value'),
+        )
+        def update_ac_filter(value_rakelink):
+            return _update_query_field(callback_context, 'ac', value_rakelink)
+
+        @self.app.callback(
+            Input('direction-selector', 'value'),
+        )
+        def update_service_direction(value):
+            self.query.inDirection = value
+            return None
+
+        @self.app.callback(
+            Input('filter-tabs', 'active_tab'),
+            prevent_initial_call=False
+        )
+        def update_query_type(active_tab):
+            if active_tab == "tab-rakelink":
+                self.query.type = FilterType.RAKELINK
+                self.query.inDirection = None  # clear irrelevant field
+            elif active_tab == "tab-service":
+                self.query.type = FilterType.SERVICE
+            else:
+                self.query.type = None
             return None
         
     def _initFileUploadCallbacks(self):
@@ -457,14 +626,17 @@ class Simulator:
             [Output('app-state', 'data'),
             Output('start-station', 'options'),
             Output('end-station', 'options'),
-            Output('intermediate-stations', 'options')],
+            Output('intermediate-stations', 'options'),
+            Output('start-station_service', 'options'),
+            Output('end-station_service', 'options'),
+            Output('intermediate-stations_service', 'options')],
             [Input('upload-wtt-inline', 'contents'),
             Input('upload-summary-inline', 'contents')],
-            # prevent_initial_call=True
+            prevent_initial_call=True
         )
         def initBackend(wttContents, summaryContents):
-            if wttContents is None or summaryContents is None:
-                return None,[],[],[]
+            if wttContents is None and summaryContents is None:
+                return None,[],[],[],[],[],[]
             
             try:
             # Decode base64
@@ -480,24 +652,26 @@ class Simulator:
                 stations = [s for s in self.parser.wtt.stations]
                 options = [{"label": s, "value": s} for s in stations]
 
-                return {"initialized": True}, options, options, options
+                return {"initialized": True}, options, options, options, options, options, options
             
             except Exception as e:
                 print(f"Error initializing backend: {e}")
-                return None, [],[],[]
+                return None, [],[],[],[],[],[]
 
     def _initButtonCallbacks(self):        
         @self.app.callback(
             Output('status-div', 'children'),
             Output('rake-3d-graph', 'figure'),
+            Output('export-button', 'disabled'),
             Input('generate-button', 'n_clicks'),
+            Input('ac-selector', 'value'),
             State('upload-wtt-inline', 'contents'),
             State('upload-summary-inline', 'contents'),
             prevent_initial_call=True
         )
-        def onGenerateClick(n_clicks, wttContents, summaryContents):
+        def onGenerateClick(n_clicks, ac_status, wttContents, summaryContents):
             if n_clicks == 0 or wttContents is None or summaryContents is None:
-                return "", go.Figure()
+                return "", go.Figure(), True
             
             try:
                 # Show loading message
@@ -506,53 +680,47 @@ class Simulator:
                     html.Div("This may take a few moments.", style={"fontSize": "12px", "color": "#64748b", "marginTop": "4px"})
                 ])
                 
-                # # Decode base64
-                # wttDecoded = base64.b64decode(wttContents.split(',')[1])
-                # summaryDecoded = base64.b64decode(summaryContents.split(',')[1])
-                
-                # # Create file objects
-                # wttIO = io.BytesIO(wttDecoded)
-                # summaryIO = io.BytesIO(summaryDecoded)
-                
-                # # Parse using the fromFileObjects class method
-                # self.parser = tt.TimeTableParser.fromFileObjects(wttIO, summaryIO)
-                
-                # Generate rake cycles
                 # pass in the filters object
+                self.query.ac = ac_status
                 qq = self.query
-                print("hahahaha")
+                # print("hahahaha")
                 print(qq.passingThrough)
                 # print(f"len is {len(rakecycles)}")
-                if self.linkTimingsCreated:
-                    self.applyLinkFilters(qq) # updates the self.render filed of the required rakecyeles
-                else:
+                if not self.linkTimingsCreated:
                     print("first time rc gen")
                     self.parser.wtt.generateRakeCycles()
-                    self.applyLinkFilters(qq)
                     self.linkTimingsCreated = True
+                
+                # === START MODIFICATION ===
+                # Branch filtering logic based on the active tab
+                if qq.type == FilterType.SERVICE:
+                    print("Applying Service Filters")
+                    self.applyServiceFilters(qq) # Use new service filter logic
+                else:
+                    # Default to RakeLink filter
+                    print("Applying Rake Link Filters")
+                    self.applyLinkFilters(qq) # Use existing rake link logic
                     
                 # for svc in self.parser.wtt.suburbanServices:
                 #     print(f"[{svc.serviceId}]  init:{svc.initStation.name}, final: {svc.finalStation.name}")
 
                 # create 3D plot
                 fig = self.visualizeLinks3D()
-                
-                # Success message
-                num_cycles = len(self.parser.wtt.rakecycles)
-                num_conflicting = len(self.parser.wtt.conflictingLinks)
-                num_rendered = len([rc for rc in self.parser.wtt.rakecycles if getattr(rc, "render", True)])
-                
-                status = html.Div([
-                    html.Div("✓ Success!", style={"color": "#188038", "fontWeight": "600", "fontSize": "16px"}),
-                    html.Div(f"Generated {num_cycles} valid rake cycles", 
-                            style={"fontSize": "14px", "color": "#334155", "marginTop": "8px"}),
-                    html.Div(f"{num_conflicting} conflicting links were excluded", 
-                            style={"fontSize": "12px", "color": "#64748b", "marginTop": "4px"}) if num_conflicting > 0 else None,
-                    html.Div(f"{num_rendered} rake cycles match the current filter", 
-                               style={"fontSize": "13px", "marginTop": "6px"}),
-                ])
-                
-                return status, fig
+
+                # summary contains
+                # - # Suburban Services
+                # - # AC services, Non-AC Services
+                # - # Rake Links generated, how many conflicting, how many dahanu road (rc.lengthKm = 0)
+                # - # 3 shortest and 3 longest rake link paths with distance
+                # - All in a neat table that doesnt occupy too much vertical space, but still
+                # provides a great ui/ux to show summary stats an maintains semantics. Ideally
+                # sperate service summary info and rake link summary info into 2 columns.
+                status = self.generateSummaryStatus()
+
+                # Export
+                # self.exportResults()
+
+                return status, fig, False
                 
             except Exception as e:
                 # Error message with details
@@ -560,8 +728,363 @@ class Simulator:
                     html.Div("✗ Error", style={"color": "#ef4444", "fontWeight": "600", "fontSize": "16px"}),
                     html.Div(str(e), style={"fontSize": "12px", "color": "#64748b", "marginTop": "8px", "fontFamily": "monospace"})
                 ])
-                return error_msg, go.Figure()
+                return error_msg, go.Figure(), True
     
+        @self.app.callback(
+                Output('download-report', 'data'),
+                Input('export-button', 'n_clicks'),
+                prevent_initial_call=True
+        )
+        def trigger_download(n_clicks):
+            # 1. Get filter type
+            filter_type = self.query.type.value if self.query.type else "unknown"
+            
+            # 2. Get timestamp
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            
+            # 3. Create filename
+            filename = f"wtt_report_{filter_type}_{timestamp}.txt"
+            
+            report_content = self.exportResults() 
+            
+            # 5. Return data dict for dcc.Download
+            return dict(content=report_content, filename=filename)
+    
+    def applyTerminalStationFiltersSvc(self, qq):
+        """Filter services by start/end station. Updates svc.render."""
+        print("Applying service terminal station filters")
+        
+        for svc in self.parser.wtt.suburbanServices:
+            # AND logic: only change True -> False, never False -> True
+            if not svc.render:
+                continue
+                
+            # Check start station
+            if qq.startStation:
+                if not svc.initStation or svc.initStation.name != qq.startStation.upper():
+                    svc.render = False
+                    continue
+            
+            # Check end station
+            if qq.endStation:
+                if not svc.finalStation or svc.finalStation.name != qq.endStation.upper():
+                    svc.render = False
+                    continue
+    
+    def applyPassingThroughFilterSvc(self, qq):
+        """Filter services by intermediate stations. Updates svc.render."""
+        selected_stations = [s.upper() for s in qq.passingThrough] if qq.passingThrough else []
+        if not selected_stations:
+            return  # No filter to apply
+        
+        print(f"Applying service passing-through filter: {selected_stations}")
+        
+        for svc in self.parser.wtt.suburbanServices:
+            if not svc.render:
+                continue
+            
+            # Get all stations this service visits
+            service_stations = set(e.atStation.upper() for e in svc.events if e.atStation)
+            
+            # Service must pass through ALL selected stations
+            if not all(st in service_stations for st in selected_stations):
+                svc.render = False
+
+    def applyDirectionFilterSvc(self, qq):
+        """Filter services by direction (UP/DOWN). Updates svc.render."""
+        if not qq.inDirection:
+            return  # No filter to apply
+        
+        print(f"Applying service direction filter: {qq.inDirection}")
+        
+        for svc in self.parser.wtt.suburbanServices:
+            if not svc.render:
+                continue
+            
+            # qq.inDirection is a list like ["UP"] or ["DOWN"] or ["UP", "DOWN"]
+            direction_match = False
+            for d in qq.inDirection:
+                if d == "UP" and svc.direction == Direction.UP:
+                    direction_match = True
+                    break
+                elif d == "DOWN" and svc.direction == Direction.DOWN:
+                    direction_match = True
+                    break
+
+            if not direction_match:
+                svc.render = False
+
+    def applyTimeFilterSvc(self, qq):
+        """
+        Filter services AND their events by time period.
+        - Sets ev.render = False for events outside the time window
+        - Sets svc.render = False if NO events remain in the window
+        """
+        if not qq.inTimePeriod:
+            return  # No filter to apply
+        
+        t_start_min, t_end_min = qq.inTimePeriod
+        print(f"Applying service time filter: {t_start_min}-{t_end_min} minutes")
+        
+        for svc in self.parser.wtt.suburbanServices:
+            if not svc.render:
+                continue
+            
+            if not svc.events:
+                svc.render = False
+                continue
+            
+            # Track if ANY event falls in the time window
+            has_visible_event = False
+            
+            for ev in svc.events:
+                # Default: event is visible unless proven otherwise
+                if not hasattr(ev, 'render'):
+                    ev.render = True
+                
+                if not ev.atTime:
+                    ev.render = False
+                    continue
+
+                minutes = ev.atTime
+                
+                # Check if event falls in time window
+                if t_start_min <= minutes <= t_end_min:
+                    ev.render = True
+                    has_visible_event = True
+                else:
+                    ev.render = False
+            
+            # If no events are visible, hide the entire service
+            if not has_visible_event:
+                svc.render = False
+
+    def applyACFilterSvc(self, qq):
+        """Filter services by AC requirement. Updates svc.render."""
+        ac_mode = qq.ac
+        if not ac_mode or ac_mode == "all":
+            return  # No filter to apply
+        
+        print(f"Applying service AC filter: {ac_mode}")
+        
+        for svc in self.parser.wtt.suburbanServices:
+            if not svc.render:
+                continue
+            
+            if ac_mode == "ac" and not svc.needsACRake:
+                svc.render = False
+            elif ac_mode == "nonac" and svc.needsACRake:
+                svc.render = False
+
+    def applyServiceFilters(self, qq):
+        '''
+        Filters individual services based on the Service tab query constraints.
+        Sets the 'render' flag on each Service object.
+        Also updates the parent RakeCycle 'render' flag.
+        '''
+        for svc in self.parser.wtt.suburbanServices:
+            svc.render = True
+            # Also reset event render flags
+            for ev in svc.events:
+                ev.render = True
+
+        # 2. Apply filters sequentially (AND logic)
+        self.applyTerminalStationFiltersSvc(qq)
+        self.applyPassingThroughFilterSvc(qq)
+        self.applyDirectionFilterSvc(qq)
+        self.applyACFilterSvc(qq)
+        self.applyTimeFilterSvc(qq)  # Must be last, as it modifies event.render
+        for rc in self.parser.wtt.rakecycles:
+            rc.render = False
+            if rc.servicePath:
+                if any(svc.render for svc in rc.servicePath):
+                    rc.render = True
+        
+        visible_services = len([s for s in self.parser.wtt.suburbanServices if s.render])
+        visible_cycles = len([r for r in self.parser.wtt.rakecycles if r.render])
+        # print(f"Visible services after filter: {visible_services}")
+        # print(f"Visible rake cycles after filter: {visible_cycles}")
+            
+    def exportResults(self):
+            buffer = io.StringIO() # Use StringIO to capture print output
+
+            # print the query
+            buffer.write(f"Filter Query: {self.query}\n\n")
+            
+            # list rakecycle inconsistencies
+            buffer.write("=== Rake Link Inconsistencies ===\n")
+            if self.parser.wtt.conflictingLinks:
+                for el in self.parser.wtt.conflictingLinks:
+                    buffer.write(f"  Summary: {el[0].serviceIds}\n")
+                    buffer.write(f"  WTT:     {el[1]}\n---\n")
+            else:
+                buffer.write("  No inconsistencies found.\n")
+
+
+            if self.query.type == FilterType.RAKELINK:
+                # List rakecycles plotted
+                buffer.write("\n=== Rake Links Plotted (RakeLink Filter) ===\n")
+                plotted_rcs = [rc for rc in self.parser.wtt.rakecycles if rc.render]
+                if plotted_rcs:
+                    for rc in plotted_rcs:
+                        buffer.write(f"{rc}\n")
+                        buffer.write(f"Services: {rc.serviceIds}\n")
+                else:
+                    buffer.write("  No rake links matched the filter criteria.\n")
+
+            
+            if self.query.type == FilterType.SERVICE:
+                # List rake links with their rendered services
+                buffer.write("\n=== Rake Links with Rendered Services (Service Filter) ===\n")
+                any_rendered = False
+                for rc in self.parser.wtt.rakecycles:
+                    if not rc.render:
+                        continue
+                        
+                    # Get rendered services in this rake cycle
+                    rendered_services = [svc for svc in rc.servicePath if svc.render]
+                    
+                    if rendered_services:
+                        any_rendered = True
+                        buffer.write(f"\n{rc}\n")
+                        buffer.write(f"  Rendered Services ({len(rendered_services)}/{len(rc.servicePath)}):\n")
+                        for svc in rendered_services:
+                            buffer.write(f"    {svc}\n")
+                
+                if not any_rendered:
+                    buffer.write("  No services matched the filter criteria.\n")
+
+            return buffer.getvalue() # Return the string content
+
+            
+    def make_summary_card(self, title, items, footer=None):
+        """Reusable helper to build a clean, minimal summary card."""
+        return dbc.Card(
+            [
+                dbc.CardHeader(
+                    html.Strong(title, style={"fontSize": "14px", "color": "#1e293b"}),
+                    style={
+                        "backgroundColor": "#f8fafc",
+                        "borderBottom": "1px solid #e2e8f0",
+                        "padding": "6px 10px"
+                    }
+                ),
+                dbc.CardBody(
+                    [
+                        html.Ul(
+                            [html.Li(i, style={"marginBottom": "4px"}) for i in items],
+                            style={
+                                "paddingLeft": "18px",
+                                "margin": "0",
+                                "fontSize": "13px",
+                                "color": "#334155",
+                                "listStyleType": "disc"
+                            }
+                        )
+                    ],
+                    style={"padding": "10px 12px"}
+                ),
+                dbc.CardFooter(
+                    footer if footer else "",
+                    style={
+                        "backgroundColor": "#fafafa",
+                        "borderTop": "1px solid #e2e8f0",
+                        "fontSize": "12px",
+                        "color": "#64748b",
+                        "padding": "6px 10px"
+                    }
+                ) if footer else None
+            ],
+            style={
+                "borderRadius": "8px",
+                "border": "1px solid #e2e8f0",
+                "boxShadow": "0 1px 2px rgba(0,0,0,0.04)",
+                "backgroundColor": "white",
+                "height": "100%"
+            }
+        )
+
+
+    def generateSummaryStatus(self):
+        wtt = self.parser.wtt
+
+        # === Compute Stats ===
+        rcs = [rc for rc in wtt.rakecycles if rc.render]
+
+        # total services
+        total_services=0
+        ac_services=0
+        for rc in rcs:
+            total_services += len(rc.servicePath)
+            for svc in rc.servicePath:
+                if svc.needsACRake and svc.render:
+                    ac_services+=1
+                    # print(f"Needs AC: {svc.serviceId}")
+                # else:
+                #     print(f"Non AC: {svc.serviceId}")
+
+        total_parsed_services = len(wtt.suburbanServices) 
+        non_ac_services = total_services - ac_services 
+
+        # rake links
+        total_parsed_links = len(wtt.rakecycles)
+        parsing_conflicts = len(wtt.conflictingLinks)
+
+        total_rendered_links = len(rcs)
+        valid_rcs = [rc for rc in rcs if rc.lengthKm > 0]
+        shortest_rcs = sorted(valid_rcs, key=lambda rc:rc.lengthKm)[:3]
+        longest_rcs = sorted(valid_rcs, key=lambda rc: rc.lengthKm, reverse=True)[:3]
+
+        # === Card contents ===
+        svcs = [s for s in wtt.suburbanServices if s.render]
+        if self.query.type == FilterType.SERVICE:
+            total_services = len(svcs)
+            non_ac_services = total_services - ac_services
+
+        service_items = [
+            f"Total Parsed services: {total_parsed_services}",
+            f"Rendered Services: {total_services}",
+            f"AC services: {ac_services}",
+            f"Non-AC services: {non_ac_services}",
+        ]
+
+        rake_items = [
+            f"Total parsed rake links: {total_parsed_links}",
+            f"Parsing Conflicts: {parsing_conflicts}",
+            f"Rendered Links: {total_rendered_links}",
+        ]
+
+        rake_footer = html.Div([
+            html.Small("Shortest: " + ", ".join(f"{rc.linkName} ({rc.lengthKm:.1f} km)" for rc in shortest_rcs)),
+            html.Br(),
+            html.Small("Longest: " + ", ".join(f"{rc.linkName} ({rc.lengthKm:.1f} km)" for rc in longest_rcs)),
+        ])
+
+        service_card = self.make_summary_card("Service Summary", service_items)
+        rake_card = self.make_summary_card("Rake Link Summary", rake_items, footer=rake_footer)
+
+        # === Layout (tight, balanced, no big paddings) ===
+        summary_layout = dbc.Row(
+            [
+                dbc.Col(service_card, width=6, style={"padding": "4px"}),
+                dbc.Col(rake_card, width=6, style={"padding": "4px"})
+            ],
+            className="g-1",  # minimal gap between cols
+            style={"margin": "0"}
+        )
+
+        # Outer wrapper (subtle spacing)
+        return html.Div(
+            summary_layout,
+            style={
+                "margin": "0px 0px 0px 0px",
+                "padding": "0px 4px",
+                "borderRadius": "6px",
+                "backgroundColor": "#f9fafb"
+            }
+        )
+
+            
     def applyTerminalStationFilters(self, start, end):
         print(f"Applying filters: start={start}, end={end}")
 
@@ -579,8 +1102,8 @@ class Simulator:
                 rc.render = rc.render and False
             if end and end.upper() != last:
                 rc.render = rc.render and False
-            else:
-                print(f"Match! {rc.linkName}")
+            # else:
+            #     print(f"Match! {rc.linkName}")
     
     def applyPassingThroughFilter(self, qq):
         '''Make rakecycles visible that have events at every station in passingThru within the specified timeperiod'''
@@ -609,17 +1132,8 @@ class Simulator:
                 for e in el:
                     if not e.atTime:
                         continue
-                    try:
-                        t = datetime.strptime(e.atTime.strip(), "%H:%M:%S")
-                    except:
-                        try:
-                            t = datetime.strptime(e.atTime.strip(), "%H:%M")
-                        except:
-                            continue
 
-                    minutes = t.hour * 60 + t.minute + t.second / 60
-                    if minutes < 165:
-                        minutes += 1440
+                    minutes = e.atTime
 
                     if t_start <= minutes <= t_end:
                         filtered.append(e)
@@ -640,56 +1154,65 @@ class Simulator:
                 rc.render = False
 
     def applyTimeFilter(self, qq):
-        '''old: Only render rakecycles whose every event lies in the interval
-           new: Highlight the time interval specified in the filter, thats it.'''
-        assert(qq.inTimePeriod)
+        """
+        New behavior:
+        - Do NOT hide any rakecycles.
+        - Keep all rc.render = True.
+        - Instead, record the active time window (t_start, t_end)
+        so the visualization can highlight that region if needed.
+        """
+        if not qq.inTimePeriod:
+            return
+
+        t_start, t_end = qq.inTimePeriod
+        print(f"Highlighting time window: {t_start}–{t_end} minutes")
+
         for rc in self.parser.wtt.rakecycles:
-            rc.render = True  
+            rc.render = True  # always visible
+
             if not rc.servicePath:
                 rc.render = False
                 continue
-            
-            # Since the events are sorted, check if the earliest
-            # event time is >= t_lower and if last event time is <= t_upper.
-            # if times are stored as integers then were ok, the comparison will
-            # be consistent even for wraparound.
-            e_tFirst = rc.servicePath[0].events[0].atTime
-            e_tLast = rc.servicePath[-1].events[-1].atTime
 
-            # --- Convert both to minutes since midnight ---
-            def to_minutes(time_str):
-                try:
-                    t = datetime.strptime(time_str.strip(), "%H:%M:%S")
-                except:
-                    try:
-                        t = datetime.strptime(time_str.strip(), "%H:%M")
-                    except:
-                        return None
-                minutes = t.hour * 60 + t.minute + t.second / 60
-                if minutes < 165:
-                    minutes += 1440
-                return minutes
+            rc.highlightEvents = []
 
-            t_first = to_minutes(e_tFirst)
-            t_last = to_minutes(e_tLast)
+            for svc in rc.servicePath:
+                for ev in svc.events:
+                    if not ev.atTime:
+                        continue
 
-            t_start, t_end = qq.inTimePeriod if qq.inTimePeriod else (None, None)
+                    minutes = ev.atTime
 
-            # If any parsing failed, skip this rakecycle
-            if t_first is None or t_last is None:
+                    # collect events that fall in range
+                    if t_start <= minutes <= t_end:
+                        rc.highlightEvents.append(ev)
+
+        highlighted = sum(len(rc.highlightEvents) for rc in self.parser.wtt.rakecycles if hasattr(rc, 'highlightEvents'))
+        print(f"Total highlighted events: {highlighted}")
+
+    def applyACFilter(self, qq):
+        '''Render only AC / Non-AC / All rake cycles as per filter.'''
+        mode = qq.ac
+        if mode is None or mode == "all":
+            return  # no filtering
+
+        for rc in self.parser.wtt.rakecycles:
+            # rc.render = True
+            if not rc.rake:
                 rc.render = False
                 continue
 
-            # Perform the actual comparison
-            if not (t_first >= t_start and t_last <= t_end):
-                rc.render = False  
+            if mode == "ac" and not rc.rake.isAC:
+                rc.render = False
+            elif mode == "nonac" and rc.rake.isAC:
+                rc.render = False
 
-    
     def applyLinkFilters(self, qq):
         '''Filter rake cycles based on selected start and end stations.'''
 
         self.applyTerminalStationFilters(qq.startStation, qq.endStation)
         self.applyPassingThroughFilter(qq)
+        self.applyACFilter(qq)
 
         visible_count = len([r for r in self.parser.wtt.rakecycles if r.render])
         print(f"Visible rake cycles after filter: {visible_count}")
@@ -707,68 +1230,156 @@ class Simulator:
         z_labels = []
         z_offset = 0
 
-        for rc in rakecycles:
-            x, y, z, stationLabels = [], [], [], []
+        # Check if we're filtering by service (granular) or rake link (coarse)
+        is_service_filter = (self.query.type == FilterType.SERVICE)
 
-            for svc in rc.servicePath:
-                for ev in svc.events:
-                    if not ev.atTime or not ev.atStation:
+        for rc in rakecycles:
+            # --- SERVICE FILTER MODE: Only render filtered services ---
+            if is_service_filter:
+            # Don't check rc.render here - we only care about individual services
+                for svc in rc.servicePath:
+                    # Skip services that don't pass the filter
+                    if not svc.render:
                         continue
 
-                    tStr = ev.atTime.strip()
-                    try:
-                        t = datetime.strptime(tStr, "%H:%M:%S")
-                    except:
-                        try:
-                            t = datetime.strptime(tStr, "%H:%M")
-                        except:
+                    # Build points for this single service
+                    # Separate lists for in-range vs out-of-range events
+                    x_in, y_in, z_in, labels_in = [], [], [], []
+                    x_out, y_out, z_out, labels_out = [], [], [], []
+                    
+                    for ev in svc.events:
+                        if not ev.atTime or not ev.atStation:
                             continue
 
-                    minutes = t.hour * 60 + t.minute + t.second / 60
-                    if minutes < 165:
-                        minutes += 1440
+                        minutes = ev.atTime
 
-                    stName = str(ev.atStation).strip().upper()
-                    if stName not in stationToY:
-                        print("Skipping unmapped station:", stName)
-                        continue
+                        stName = str(ev.atStation).strip().upper()
+                        if stName not in stationToY:
+                            continue
 
-                    x.append(minutes)
-                    y.append(stationToY[stName])
-                    z.append(z_offset)
-                    stationLabels.append(stName)
-            
-            if rc.rake.isAC:
-                color = "rgba(66,133,244,0.8)"   # Google Sheets blue
+                        # Check if event is within the filtered time range
+                        ev_render = getattr(ev, 'render', True)
+                        
+                        if ev_render:
+                            # Event is in the time filter range
+                            x_in.append(minutes)
+                            y_in.append(stationToY[stName])
+                            z_in.append(z_offset)
+                            labels_in.append(stName)
+                        else:
+                            # Event is outside the time filter range
+                            x_out.append(minutes)
+                            y_out.append(stationToY[stName])
+                            z_out.append(z_offset)
+                            labels_out.append(stName)
+
+                    # Format service IDs for display (handle list of IDs)
+                    svc_id_str = ','.join(str(sid) for sid in svc.serviceId) if svc.serviceId else '?'
+                    
+                    # Create trace for OUT-OF-RANGE events (dimmed, background context)
+                    if x_out:
+                        color_dim = "rgba(66,133,244,0.6)" if svc.needsACRake else "rgba(90,90,90,0.6)"
+                        
+                        all_traces.append(
+                            go.Scatter3d(
+                                x=x_out, y=y_out, z=z_out,
+                                mode="lines+markers",
+                                line=dict(color=color_dim),
+                                marker=dict(size=2, color=color_dim),
+                                hovertext=[
+                                    f"{svc_id_str}: {st} @ {(int(xx)//60) % 24:02d}:{int(xx%60):02d} (outside filter)"
+                                    for xx, st in zip(x_out, labels_out)
+                                ],
+                                hoverinfo="text",
+                                name=f"{rc.linkName}-{svc_id_str} (context)",
+                                showlegend=False,  # Don't clutter legend with dimmed traces
+                                visible=True,
+                            )
+                        )
+                    
+                    # Create trace for IN-RANGE events (prominent, filtered results)
+                    # color = "rgba(66,133,244,0.8)" if svc.needsACRake else "rgba(90,90,90,0.8)"
+                    if x_in:
+                        color_bright = "rgba(66,133,244,0.8)" if svc.needsACRake else "rgba(90,90,90,0.8)"
+                        
+                        all_traces.append(
+                            go.Scatter3d(
+                                x=x_in, y=y_in, z=z_in,
+                                mode="lines+markers",
+                                line=dict(color=color_bright),
+                                marker=dict(size=2, color=color_bright),  # Larger markers
+                                hovertext=[
+                                    f"{svc_id_str}: {st} @ {(int(xx)//60) % 24:02d}:{int(xx%60):02d}"
+                                    for xx, st in zip(x_in, labels_in)
+                                ],
+                                hoverinfo="text",
+                                name=f"{rc.linkName}-{svc_id_str}",
+                                visible=True,
+                            )
+                        )
+                        z_labels.append((z_offset, f"{rc.linkName}-{svc_id_str}"))
+                    
+                    # Only increment z if we rendered something
+                    if x_in or x_out:
+                        z_offset += 40  # increment z for next service
+
+            # --- RAKE LINK FILTER MODE: Create one trace per rake cycle ---
             else:
-                color = "rgba(90,90,90,0.8)"    # Light transparent gray
+                # Check if this rake cycle passes the rake link filters
+                if not rc.render:
+                    continue
+                
+                # Aggregate all services in the rake cycle into a single trace
+                x, y, z, stationLabels = [], [], [], []
 
-            if x:
-                # visible = getattr(rc, 'render', True)
-                # visible = False
-                visible = rc.render
-                all_traces.append(
-                    go.Scatter3d(
-                        x=x, y=y, z=z,
-                        mode="lines+markers",
-                        line=dict(color=color),
-                        marker=dict(size=2, color=color),
-                        # line=dict(color="#444444"),
-                        # marker=dict(size=2, color="#444444"),
-                        hovertext=[
-                            f"{rc.linkName}: {st} @ {(int(xx)//60) % 24:02d}:{int(xx%60):02d}"
-                            for xx, st in zip(x, stationLabels)
-                        ],
-                        hoverinfo="text",
-                        name=rc.linkName,
-                        visible=visible,
+                for svc in rc.servicePath:
+                    # In rake link mode, we render all services in a visible rake cycle
+                    for ev in svc.events:
+                        if not ev.atTime or not ev.atStation:
+                            continue
+                            
+                        minutes = ev.atTime
+                        # print(minutes)
+
+                        stName = str(ev.atStation).strip().upper()
+                        if stName not in stationToY:
+                            continue
+
+                        x.append(minutes)
+                        y.append(stationToY[stName])
+                        z.append(z_offset)
+                        stationLabels.append(stName)
+                
+                # Create single trace for entire rake cycle
+                if x:
+                    color = "rgba(66,133,244,0.8)" if rc.rake.isAC else "rgba(90,90,90,0.8)"
+                    
+                    all_traces.append(
+                        go.Scatter3d(
+                            x=x, y=y, z=z,
+                            mode="lines+markers",
+                            line=dict(color=color),
+                            marker=dict(size=2, color=color),
+                            hovertext=[
+                                f"{rc.linkName}: {st} @ {(int(xx)//60) % 24:02d}:{int(xx%60):02d}"
+                                for xx, st in zip(x, stationLabels)
+                            ],
+                            hoverinfo="text",
+                            name=rc.linkName,
+                            visible=True,
+                        )
                     )
-                )
-                z_labels.append((z_offset, rc.linkName))
-                z_offset += 40  # increment z for next rakecycle
+                    z_labels.append((z_offset, rc.linkName))
+                    z_offset += 40  # increment z for next rakecycle
         
-        x_start  = 165 # 245am
-        x_end = 1605 # 245 am next day
+        if self.query.inTimePeriod:
+            x_start, x_end = self.query.inTimePeriod
+        else:
+            x_start, x_end  = 165, 1605
+        padding = 60  # 30 minutes
+        x_end = (x_end + padding)
+        # x_start = max(0, x_start - padding)
+
         tickPositions = list(range(x_start, x_end + 1, 120))
         tickLabels = [f"{(t // 60) % 24:02d}:{int(t % 60):02d}" for t in tickPositions]
 
@@ -800,15 +1411,10 @@ class Simulator:
                 zaxis=dict(
                     showgrid=True,
                     showspikes=False,
-                    title="Rake Cycle",
+                    title="Service" if is_service_filter else "Rake Cycle",
                     tickvals=[zv for zv, _ in z_labels],
                     ticktext=[zl for _, zl in z_labels],
                 ),
-                # camera=dict(
-                #     eye=dict(x=1.6, y=0.01, z=1.4),
-                #     up=dict(x=0, y=1, z=0),
-                #     center=dict(x=0, y=0, z=0)
-                # ),
                 camera=dict(
                     eye=dict(x=0, y=0, z=2.5),
                     up=dict(x=0, y=1, z=0),
@@ -819,8 +1425,9 @@ class Simulator:
             ),
             scene_camera_projection_type="orthographic",
             width=1300,
-            height=800,
-            margin=dict(t=5, l=5, b=5, r=5),
+            height=700,
+            margin=dict(t=0, l=5, b=5, r=5),
+            autosize=True
         )
 
         return fig
