@@ -2,3 +2,6 @@
 .ipynb_checkpoints
 *.xlsx
 NOTES.md
+dash-sample-apps
+*.pyc
+*.txt
