@@ -2,6 +2,15 @@
 See [issue#1](https://github.com/ar-in0/railways-simulator-IITB/issues/1)
 
 
+# To run
+```bash
+cd Simulator/src/
+source <venv_location>/bin/activate
+python3 simulator.py
+```
+
+
+
 <strike>
 ## Independent Tasks
 There are three subgroups working on independent tasks. Each task has its own directory on branch `main`.
