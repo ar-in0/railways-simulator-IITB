@@ -7,5 +7,5 @@ source dash-venv/bin/activate
 pip install -r requirements.txt
 
 # Run simulator
-python3 simulator-base.py
+python3 simulator.py
 ```
