@@ -11,6 +11,7 @@ import re
 from collections import defaultdict
 import logging
 from datetime import datetime
+import time
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -263,6 +264,8 @@ class TimeTable:
         
         # Then for every service in every rakecycle, parse the stationcol 
         # to extract timings and create StationEvents.
+        # services not in the valid rakecycles will
+        # not have events. 
         for rc in self.rakecycles:
             # print(rc.servicePath)
             if not rc.servicePath:
@@ -288,6 +291,9 @@ class TimeTable:
         for i, rc in enumerate(self.rakecycles):
             rake = Rake(i)
             for svc in rc.servicePath:
+                # make half of them AC
+                # if i < len(self.rakecycles)/2 + 10:
+                #     svc.needsACRake = True
                 if svc.needsACRake:
                     rake.isAC = True
                     break
@@ -382,7 +388,7 @@ class RakeCycle:
     
     def __repr__(self):
         rake_str = self.rake.rakeId if self.rake else 'Unassigned'
-        n_services = len(self.serviceIds)
+        n_services = len(self.servicePath)
         start = self.servicePath[0].events[0].atStation if self.servicePath else '?'
         end = self.servicePath[-1].events[-1].atStation if self.servicePath else '?'
         # start = self.startDepot if self.startDepot else '?'
@@ -463,6 +469,99 @@ class Service:
         
         # self.name = None
     
+    def checkStartStationConstraint(self, qq):
+        if not qq.startStation:
+            return
+        
+        start = qq.startStation
+        print(self.events)
+        print(self)
+        first = self.events[0].atStation
+
+        t_first = self.events[0].atTime
+        t_lower, t_upper = qq.inTimePeriod # minutes
+        print(first)
+        print(start)
+
+        if first == start:
+            if not (t_lower <= t_first <= t_upper):
+                self.render = self.render and False
+        else:
+            self.render = self.render and False
+        
+    def checkEndStationConstraint(self, qq):
+        if not qq.endStation:
+            return
+        
+        end = qq.endStation
+        last = self.events[-1].atStation
+        t_last = self.events[-1].atTime
+        t_lower, t_upper = qq.inTimePeriod
+
+        if last == end:
+            if not (t_lower <= t_last <= t_upper):
+                self.render = self.render and False
+        else:
+            self.render = self.render and False
+
+    def checkDirectionConstraint(self, qq):
+        dir = qq.inDirection
+        if not dir:
+            return
+        
+        dirMatch = False
+        # print(f"dir: {qq.inDirection}")
+        for d in qq.inDirection:
+            if d == "UP" and self.direction == Direction.UP:
+                dirMatch = True
+                break
+            elif d == "DOWN" and self.direction == Direction.DOWN:
+                dirMatch = True
+                break
+        
+        if not dirMatch:
+            self.render = self.render and False
+
+    def checkACConstraint(self, qq):
+        mode = qq.ac
+        if not mode or mode == "all":
+            return
+        
+        if mode == "ac" and not self.needsACRake:
+            self.render = self.render and False
+        elif mode == "nonac" and self.needsACRake:
+            self.render = self.render and False
+
+    def checkPassingThroughConstraint(self, qq):
+        qPassingStns = [s.upper() for s in qq.passingThrough] if qq.passingThrough else []
+        if not qPassingStns:
+            return # no filter
+        
+        # map stations in servicepath to times
+        stnMapTimes = {}
+        for e in self.events:
+            if e.atStation not in stnMapTimes:
+                stnMapTimes[e.atStation] = []
+            stnMapTimes[e.atStation].append(e.atTime)
+
+        for st in qPassingStns:
+            # if even one query station is not passed by the
+            # service, return
+            if st not in stnMapTimes:
+                self.render = self.render and False
+                return
+            
+            # this service passes through this query station
+            # check if it occurs in the given time interval
+            t = stnMapTimes[st][-1]
+            t_lower, t_upper = qq.inTimePeriod
+            if not (t_lower <= t <= t_upper):
+                self.render = self.render and False
+                return
+        
+        # if here, the service satisfies the constraint
+        # render it.
+
     def computeLengthKm(self):
         l = 0
         dprev = TimeTableParser.distanceMap[self.events[0].atStation]
@@ -537,6 +636,7 @@ class Service:
                     # assert next time is a D time
                     isDTime = True if sheet.iat[rowIdx+1, 1] == "D" else False
                     self.events.append(e1)
+                    TimeTableParser.eventsByStationMap[stName].append(e1)
                     # # print(sheet.iat[rowIdx+1, 1])
                     if isDTime:
                         tDep = str(serviceCol.iloc[rowIdx + 1]).strip()
@@ -546,6 +646,7 @@ class Service:
                             # print("boom")
                             e2 = StationEvent(stName, self, tDep, EventType.DEPARTURE)
                             self.events.append(e2)
+                            TimeTableParser.eventsByStationMap[stName].append(e2)
                     else:
                         # probably the last station
                         # nothing to do
@@ -558,6 +659,7 @@ class Service:
                     time = str(tCell).strip()
                     e = StationEvent(stName, self, time, EventType.ARRIVAL)
                     self.events.append(e)
+                    TimeTableParser.eventsByStationMap[stName].append(e)
 
         # print(f"For service {self.serviceId}, events are:")
         # for ev in self.events:
@@ -597,7 +699,7 @@ class StationEvent:
         self.render = True
     
     def _timeToMinutes(self, time_str):
-        """Convert time string to minutes since midnight, with wrap-around."""
+        '''Convert time string to minutes since midnight, with wrap-around.'''
         if not time_str:
             return None
         try:
@@ -659,10 +761,14 @@ class TimeTableParser:
         "NAIGAON": 48, "VASAI ROAD": 52, "NALLASOPARA": 56, "VIRAR": 60
     }
 
+    eventsByStationMap = defaultdict(list)
+
     def __init__(self, fpWttXlsx=None, fpWttSummaryXlsx=None):
         self.wtt = TimeTable()
         self.stationCol = None # df column with stations
 
+        # if the req comes from a local test
+        # i.e. python3 timetable.py
         if fpWttSummaryXlsx and fpWttXlsx:
             self.xlsxToDf(fpWttXlsx)
             self.registerStations()
@@ -682,14 +788,19 @@ class TimeTableParser:
         # # print(self.suburbanServices)
         # for s in self.suburbanServices:
         #     # print(s.serviceId)
-
     @classmethod
     def fromFileObjects(cls, wttFileObj, summaryFileObj):
         '''Create TimeTableParser from BytesIO objects for uploaded files'''
         instance = cls()
+        start = time.time()
         instance.xlsxToDfFromFileObj(wttFileObj)
         instance.registerStations()
+        end = time.time()
+
+        # this can be triggered when the 
+        # summary sheet is uploaded
         instance.registerServices()
+        print(f"time in: {end - start}")
         instance.parseWttSummaryFromFileObj(summaryFileObj) # creates rakecycles without timing info
         instance.wtt.suburbanServices = instance.isolateSuburbanServices()
         return instance
