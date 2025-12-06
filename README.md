@@ -1,5 +1,4 @@
-# Mumbai Suburban Railways Simulator
-See [issue#1](https://github.com/ar-in0/railways-simulator-IITB/issues/1)
+See [issue#1](https://github.com/ar-in0/western-railways-simulator/issues/1)
 
 
 # To run
